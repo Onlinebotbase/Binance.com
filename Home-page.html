@@ -931,113 +931,140 @@ input:checked + .slider:before { transform: translateX(20px); }
 </header>
     
 
+
+
+
 <!-- PAGE CONTENT -->
 <div id="pageContentContainer" class="page-content">
-
-<!-- HOME PAGE -->
-<div id="home" class="page p-4 space-y-5">
-  
-  <!-- User ID and Balance Card -->
-  <div class="card space-y-4 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-muted"><use href="#icon-hash"/></svg>
-        <p class="text-xs text-muted font-medium uppercase tracking-wider">Account ID</p>
+  <!-- HOME PAGE -->
+  <div id="home" class="page active">
+    
+    <!-- 🔹 USER ID PLACED ABOVE ALL OTHER CONTENT (Top of page) -->
+    <div class="user-id-top">
+      <div class="user-id-top-left">
+        <div class="user-avatar-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="user-id-info">
+          <span class="user-id-label">UID</span>
+          <span id="userIDDisplay" class="user-id-value font-mono">836201947</span>
+        </div>
       </div>
-      <p id="userIDDisplay" class="text-sm font-mono text-text font-semibold"></p>
+      <div class="user-id-qr">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="3" height="3" rx="0.5"/>
+          <rect x="18" y="18" width="3" height="3" rx="0.5"/>
+        </svg>
+      </div>
     </div>
-    <div>
-      <p class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Total Balance</p>
-      <p id="totalBalanceDisplay" class="text-3xl font-extrabold tracking-tight flex items-end gap-2">
-        <span class="text-text">$0.00</span>
-        <span id="balanceChange" class="text-sm font-semibold"></span>
-      </p>
+
+    <!-- Balance Card -->
+    <div class="balance-section">
+      <div class="balance-label">
+        <svg width="14" height="14" class="text-secondary"><use href="#icon-eye"/></svg>
+        <span>Total Balance</span>
+      </div>
+      <div class="balance-amount">
+        <span id="totalBalanceDisplay">$0.00</span>
+        <span id="balanceChange" class="balance-change"></span>
+      </div>
     </div>
-    <div class="flex gap-3 pt-1">
-      <button onclick="openDepositCoinSelection()" class="flex-1 btn-primary">
-        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+
+    <!-- Quick Actions (Buttons with real Binance shape: rounded rectangle, stroke-linecap round) -->
+    <div class="action-grid mb-4">
+      <button class="action-btn" onclick="showPage('depositCoinSelectionPage')">
+        <div class="action-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v8M8 12h8"/>
+          </svg>
+        </div>
         <span>Deposit</span>
       </button>
-      <button onclick="showWithdrawalSelector()" class="flex-1 btn-secondary">
-        <svg class="w-4 h-4 text-text" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+      <button class="action-btn" onclick="showWithdrawalSelector()">
+        <div class="action-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8"/>
+          </svg>
+        </div>
         <span>Withdraw</span>
       </button>
+      <button class="action-btn" onclick="showPage('trade')">
+        <div class="action-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 8l8 8M16 8v8H8"/>
+          </svg>
+        </div>
+        <span>Swap</span>
+      </button>
+      <button class="action-btn" onclick="showPage('accountDetails')">
+        <div class="action-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="8" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="16" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <span>More</span>
+      </button>
     </div>
-  </div>
 
-  <!-- Horizontally Scrolling Action Buttons Row -->
-  <div class="horizontal-scroll" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
-    <!-- Swap Button -->
-    <button onclick="showPage('trade')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-      <span>Swap</span>
-    </button>
-
-    <!-- More Button -->
-    <button onclick="showPage('accountDetails')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-      <span>More</span>
-    </button>
-
-    <!-- Earn Button (Bonus Action) -->
-    <button onclick="showPage('earn')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-      <span>Earn</span>
-    </button>
-
-    <!-- Copy UID Button -->
-    <button onclick="copyUserID()" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      <span>Copy UID</span>
-    </button>
-  </div>
-
-  <!-- Promo Banner -->
-  <div class="promo-card">
-    <div class="flex items-start justify-between relative z-10">
-      <div>
-        <p class="text-xs text-accent font-semibold uppercase tracking-wide mb-1">Airdrop Carnival</p>
-        <p class="text-sm font-semibold mb-1">$5M+ Exclusive Airdrops</p>
-        <p class="text-xs text-secondary">Join the Binance Web3 Airdrop Zone and claim rewards.</p>
+    <!-- Promo Banner -->
+    <div class="promo-card">
+      <div class="flex items-start justify-between relative z-10">
+        <div>
+          <p class="text-xs text-accent font-semibold uppercase tracking-wide mb-1">Airdrop Carnival</p>
+          <p class="text-sm font-semibold mb-1">$5M+ Exclusive Airdrops</p>
+          <p class="text-xs text-secondary">Join the Binance Web3 Airdrop Zone and claim rewards.</p>
+        </div>
+        <svg width="40" height="40" class="text-accent opacity-30">
+          <use href="#icon-binance"/>
+        </svg>
       </div>
-      <svg width="40" height="40" class="text-accent opacity-30">
-        <use href="#icon-binance"/>
-      </svg>
+    </div>
+
+    <!-- Holdings Section -->
+    <div class="section-divider">Assets</div>
+    <div id="holdingsList" class="token-list mb-4">
+      <div class="empty-state">
+        <svg width="40" height="40"><use href="#icon-wallet"/></svg>
+        <p class="text-sm">Connect wallet to see holdings</p>
+      </div>
+    </div>
+
+    <!-- Live Chart Section -->
+    <div class="section-divider">Live Market</div>
+    <div class="chart-container">
+      <div id="tvChartContainer" class="w-full h-full"></div>
+    </div>
+
+    <!-- Hot Coins -->
+    <div class="section-divider">Hot Coins</div>
+    <div id="hotCoinsList" class="horizontal-scroll mb-4">
+      <div class="empty-state py-8">
+        <svg width="32" height="32" class="spinner"><circle cx="16" cy="16" r="12" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="60" stroke-linecap="round"/></svg>
+        <p class="text-xs mt-2">Loading hot coins...</p>
+      </div>
+    </div>
+
+    <!-- Activity Section -->
+    <div class="section-divider">Activity</div>
+    <div id="activitySection" class="px-4 mb-4">
+      <div class="binance-card p-4">
+        <p class="text-sm text-secondary text-center">No recent activity</p>
+      </div>
     </div>
   </div>
-
-  <!-- Holdings Section -->
-  <div class="section-divider">Assets</div>
-  <div id="holdingsList" class="token-list mb-4">
-    <div class="empty-state">
-      <svg width="40" height="40"><use href="#icon-wallet"/></svg>
-      <p class="text-sm">Connect wallet to see holdings</p>
     </div>
-  </div>
-
-  <!-- Live Chart Section -->
-  <div class="section-divider">Live Market</div>
-  <div class="chart-container">
-    <div id="tvChartContainer" class="w-full h-full"></div>
-  </div>
-
-  <!-- Hot Coins -->
-  <div class="section-divider">Hot Coins</div>
-  <div id="hotCoinsList" class="horizontal-scroll mb-4">
-    <div class="empty-state py-8">
-      <svg width="32" height="32" class="spinner"><circle cx="16" cy="16" r="12" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="60" stroke-linecap="round"/></svg>
-      <p class="text-xs mt-2">Loading hot coins...</p>
-    </div>
-  </div>
-
-  <!-- Activity Section -->
-  <div class="section-divider">Activity</div>
-  <div id="activitySection" class="px-4 mb-4">
-    <div class="binance-card p-4">
-      <p class="text-sm text-secondary text-center">No recent activity</p>
-    </div>
-  </div>
                                                                                                                                                                                                                                                                                          </div>
 
     
