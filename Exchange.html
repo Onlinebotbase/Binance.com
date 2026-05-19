@@ -61,6 +61,33 @@ html, body {
   position: relative;
 }
 
+.app-header {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 40;
+  position: relative;
+}
+
+.wallet-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease;
+}
+
+.wallet-selector:hover {
+  background: rgba(255,255,255,0.05);
+}
+
 .page-content {
   flex: 1;
   overflow-y: auto;
@@ -282,9 +309,14 @@ input::placeholder { color: var(--muted); }
 .text-danger { color: var(--danger); }
 .text-accent { color: var(--accent); }
 .text-muted { color: var(--muted); }
+.text-secondary { color: var(--text-secondary); }
+.bg-card { background: var(--card); }
+.bg-surface { background: var(--surface); }
 .bg-success-soft { background: var(--success-bg); }
 .bg-danger-soft { background: var(--danger-bg); }
 .bg-accent-soft { background: var(--accent-weak); }
+.bg-danger { background: var(--danger); }
+.border-border { border-color: var(--border); }
 
 /* Scrollbar for desktop */
 @media (min-width: 640px) {
@@ -554,29 +586,26 @@ input::placeholder { color: var(--muted); }
 
   <!-- GLOBAL HEADER -->
   <header id="header" class="app-header">
-  <div class="flex items-center gap-3">
-    <div class="wallet-selector" onclick="toggleWalletMenu()">
-      <svg width="20" height="20"><use href="#icon-wallet"/></svg>
-      <span id="headerWalletName" class="truncate max-w-[100px]">Web3 Wallet</span>
-      <svg width="14" height="14" class="text-secondary"><use href="#icon-chevron-down"/></svg>
-    </div>
-    <div id="walletMenu" class="hidden absolute top-14 left-4 bg-card border border-border rounded-xl shadow-2xl z-50 w-56 overflow-hidden">
-      <div class="p-3 border-b border-border">
-        <p class="text-xs text-secondary uppercase font-semibold">Select Wallet</p>
+    <div class="flex items-center gap-3">
+      <div class="wallet-selector" onclick="toggleWalletMenu()">
+        <svg width="20" height="20"><use href="#icon-wallet"/></svg>
+        <span id="headerWalletName" class="truncate max-w-[100px]">Web3 Wallet</span>
+        <svg width="14" height="14" class="text-secondary"><use href="#icon-chevron-down"/></svg>
       </div>
-      <button onclick="selectWallet('Home-page.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
-        <svg width="16" height="16"><use href="#icon-wallet"/></svg>
-        Web3 Wallet
-      </button>
-      <button onclick="selectWallet('Exchange.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
-        <svg width="16" height="16"><use href="#icon-binance"/></svg>
-        Exchange
-      </button>
-    </div>
-  </div>
-        <h1 id="pageTitle" class="text-lg font-bold text-text tracking-tight">Home</h1>
+      <div id="walletMenu" class="hidden absolute top-14 left-4 bg-card border border-border rounded-xl shadow-2xl z-50 w-56 overflow-hidden">
+        <div class="p-3 border-b border-border">
+          <p class="text-xs text-secondary uppercase font-semibold">Select Wallet</p>
+        </div>
+        <button onclick="selectWallet('Home-page.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
+          <svg width="16" height="16"><use href="#icon-wallet"/></svg>
+          Web3 Wallet
+        </button>
+        <button onclick="selectWallet('Exchange.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
+          <svg width="16" height="16"><use href="#icon-binance"/></svg>
+          Exchange
+        </button>
       </div>
-    </div>
+    </div>     
     <div class="flex items-center gap-1">
       <button onclick="showPage('notification')" class="p-2.5 rounded-xl hover:bg-white/5 transition-colors relative">
         <svg class="w-5 h-5 text-muted"><use href="#icon-bell"/></svg>
@@ -591,6 +620,7 @@ input::placeholder { color: var(--muted); }
       <button id="connectWalletBtn" onclick="toggleWalletConnection()" class="ml-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all duration-300 border border-transparent">Connect</button>
     </div>
   </header>
+
 
   <!-- PAGE CONTENT CONTAINER -->
   <div id="pageContentContainer" class="page-content">
