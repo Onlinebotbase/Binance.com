@@ -933,17 +933,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 <!-- PAGE CONTENT -->
 <div id="pageContentContainer" class="page-content">
-  <!-- HOME PAGE -->
-<div id="home" class="page p-4 space-y-5">
-  <!-- Live Ticker -->
-  <div class="ticker-wrap">
-    <div id="homeTicker" class="ticker text-muted font-semibold text-xs">
-      <span class="ticker-item">Loading live markets...</span>
-    </div>
-  </div>
 
-  <!-- User ID - Placed above all other content -->
-  <div class="card space-y-3 relative overflow-hidden">
+<!-- HOME PAGE -->
+<div id="home" class="page p-4 space-y-5">
+  
+  <!-- User ID and Balance Card -->
+  <div class="card space-y-4 relative overflow-hidden">
     <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -952,11 +947,6 @@ input:checked + .slider:before { transform: translateX(20px); }
       </div>
       <p id="userIDDisplay" class="text-sm font-mono text-text font-semibold"></p>
     </div>
-  </div>
-
-  <!-- Balance Card -->
-  <div class="card space-y-4 relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
     <div>
       <p class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Total Balance</p>
       <p id="totalBalanceDisplay" class="text-3xl font-extrabold tracking-tight flex items-end gap-2">
@@ -964,17 +954,43 @@ input:checked + .slider:before { transform: translateX(20px); }
         <span id="balanceChange" class="text-sm font-semibold"></span>
       </p>
     </div>
-    <!-- Quick Actions - Real Binance style: yellow pill buttons -->
     <div class="flex gap-3 pt-1">
-      <button onclick="openDepositCoinSelection()" class="flex-1 btn-primary" style="background-color: #FCD535; color: #1E2329; border: none; border-radius: 24px; padding: 12px 16px; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: opacity 0.2s;">
+      <button onclick="openDepositCoinSelection()" class="flex-1 btn-primary">
         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
         <span>Deposit</span>
       </button>
-      <button onclick="showWithdrawalSelector()" class="flex-1 btn-secondary" style="background-color: #FCD535; color: #1E2329; border: none; border-radius: 24px; padding: 12px 16px; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: opacity 0.2s;">
-        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+      <button onclick="showWithdrawalSelector()" class="flex-1 btn-secondary">
+        <svg class="w-4 h-4 text-text" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
         <span>Withdraw</span>
       </button>
     </div>
+  </div>
+
+  <!-- Horizontally Scrolling Action Buttons Row -->
+  <div class="horizontal-scroll" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+    <!-- Swap Button -->
+    <button onclick="showPage('trade')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      <span>Swap</span>
+    </button>
+
+    <!-- More Button -->
+    <button onclick="showPage('accountDetails')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      <span>More</span>
+    </button>
+
+    <!-- Earn Button (Bonus Action) -->
+    <button onclick="showPage('earn')" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <span>Earn</span>
+    </button>
+
+    <!-- Copy UID Button -->
+    <button onclick="copyUserID()" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 40px; white-space: nowrap; flex-shrink: 0; scroll-snap-align: start; font-weight: 600;">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      <span>Copy UID</span>
+    </button>
   </div>
 
   <!-- Promo Banner -->
@@ -1022,7 +1038,8 @@ input:checked + .slider:before { transform: translateX(20px); }
       <p class="text-sm text-secondary text-center">No recent activity</p>
     </div>
   </div>
-</div>
+                                                                                                                                                                                                                                                                                         </div>
+
     
 <!-- MARKET PAGE -->
 <div id="market" class="page">
