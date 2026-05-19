@@ -483,6 +483,18 @@ input::placeholder { color: var(--muted); }
 <!-- SVG Sprite Library -->
 <svg width="0" height="0" style="position:absolute;visibility:hidden;">
   <defs>
+    <symbol id="icon-binance" viewBox="0 0 32 32">
+    <path d="M16 0L20 4L16 8L12 4L16 0Z" fill="#F0B90B"/>
+    <path d="M20 4L24 8L20 12L16 8L20 4Z" fill="#F0B90B"/>
+    <path d="M12 4L16 8L12 12L8 8L12 4Z" fill="#F0B90B"/>
+    <path d="M16 8L20 12L16 16L12 12L16 8Z" fill="#F0B90B"/>
+    <path d="M12 12L16 16L12 20L8 16L12 12Z" fill="#F0B90B"/>
+    <path d="M20 12L24 16L20 20L16 16L20 12Z" fill="#F0B90B"/>
+    <path d="M16 16L20 20L16 24L12 20L16 16Z" fill="#F0B90B"/>
+    <path d="M16 24L20 28L16 32L12 28L16 24Z" fill="#F0B90B"/>
+    <path d="M8 16L12 20L8 24L4 20L8 16Z" fill="#F0B90B"/>
+    <path d="M24 16L28 20L24 24L20 20L24 16Z" fill="#F0B90B"/>
+    </symbol>
     <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l9-7 9 7v9a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4H9v4a2 2 0 01-2 2H3a2 2 0 01-2-2v-9z"/><path d="M9 22V12h6v10"/></symbol>
     <symbol id="icon-market" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M3 20h18"/></symbol>
     <symbol id="icon-trade" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l4-4 4 4M8 17l4 4 4-4"/><path d="M12 3v18"/></symbol>
@@ -541,12 +553,27 @@ input::placeholder { color: var(--muted); }
   </div>
 
   <!-- GLOBAL HEADER -->
-  <header id="header" class="sticky top-0 z-20 flex items-center justify-between px-4 py-3 glass-header">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shadow-md">
-        <svg class="w-5 h-5 text-[#181A20]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l4.2 4.2-1.7 1.7L16 7.3l-2.5 2.6-1.7-1.7L16 4zM9.5 10.5l1.7 1.7L9.5 13.9l-1.7-1.7 1.7-1.7zm13 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 11.3l2.5 2.6-1.7 1.7L16 14.6l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zm11 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 18.7l2.5 2.6-1.7 1.7L16 22l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7L16 28l4.2-4.2-1.7-1.7L16 24.7l-2.5 2.6-1.7-1.7z"/></svg>
+  <header id="header" class="app-header">
+  <div class="flex items-center gap-3">
+    <div class="wallet-selector" onclick="toggleWalletMenu()">
+      <svg width="20" height="20"><use href="#icon-wallet"/></svg>
+      <span id="headerWalletName" class="truncate max-w-[100px]">Web3 Wallet</span>
+      <svg width="14" height="14" class="text-secondary"><use href="#icon-chevron-down"/></svg>
+    </div>
+    <div id="walletMenu" class="hidden absolute top-14 left-4 bg-card border border-border rounded-xl shadow-2xl z-50 w-56 overflow-hidden">
+      <div class="p-3 border-b border-border">
+        <p class="text-xs text-secondary uppercase font-semibold">Select Wallet</p>
       </div>
-      <div>
+      <button onclick="selectWallet('Home-page.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
+        <svg width="16" height="16"><use href="#icon-wallet"/></svg>
+        Web3 Wallet
+      </button>
+      <button onclick="selectWallet('Exchange.html')" class="w-full text-left px-4 py-3 hover:bg-surface flex items-center gap-2 text-sm">
+        <svg width="16" height="16"><use href="#icon-binance"/></svg>
+        Exchange
+      </button>
+    </div>
+  </div>
         <h1 id="pageTitle" class="text-lg font-bold text-text tracking-tight">Home</h1>
       </div>
     </div>
@@ -561,7 +588,7 @@ input::placeholder { color: var(--muted); }
       <button onclick="showPage('chat')" class="p-2.5 rounded-xl hover:bg-white/5 transition-colors">
         <svg class="w-5 h-5 text-muted"><use href="#icon-chat"/></svg>
       </button>
-      <button id="connectWalletBtn" onclick="toggleWalletConnection()" class="ml-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all duration-300 border border-transparent"></button>
+      <button id="connectWalletBtn" onclick="toggleWalletConnection()" class="ml-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all duration-300 border border-transparent">Connect</button>
     </div>
   </header>
 
